@@ -8,8 +8,7 @@ public class WeaponCreatorEditor : Editor {
     public static void CreateMyAsset()
     {
         ProjectileWeapon asset = ScriptableObject.CreateInstance<ProjectileWeapon>();
-
-        
+                
         AssetDatabase.CreateAsset(asset, "Assets/ProjectileWeapon.asset");
         AssetDatabase.SaveAssets();
 
