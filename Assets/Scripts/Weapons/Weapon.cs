@@ -10,10 +10,14 @@ public abstract class Weapon : ScriptableObject{
     /// </summary>
     public TargetingSystem usedTargetingSystem;
 
+    public float criticalChance = 0.1f;
+    public float streuwert = 0;
+    
+
     /// <summary>
     /// Called from outside. Tests if weapon can fire.
     /// </summary>
-    public abstract void TryShoot();
+    public abstract void TryShoot(Vector3 direction);
 
     /// <summary>
     /// Creates the gameObjects visible to the player.
@@ -21,18 +25,8 @@ public abstract class Weapon : ScriptableObject{
     /// </summary>
     public abstract void Spawn();
 
-    public virtual void OnEnable()
+    public virtual void Update()
     {
-        GameHandler.UpdateEvent += Update;
-    }
-
-    public virtual void OnDisable()
-    {
-        GameHandler.UpdateEvent -= Update;
-    }
-
-    protected virtual void Update()
-    {
-        usedTargetingSystem.UpdateTargetGUI();
+        usedTargetingSystem.UpdateTargetGUI(Vector3.zero);
     }
 }

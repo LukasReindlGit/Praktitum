@@ -12,7 +12,7 @@ public class TestTargetingSystem : TargetingSystem
 
     public override void UpdateTargetGUI(Vector3 direction)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
     
 }

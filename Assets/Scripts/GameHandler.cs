@@ -6,8 +6,16 @@ public delegate void DefaultDelegate();
 
 public class GameHandler : MonoBehaviour
 {
+
     public static event DefaultDelegate UpdateEvent;
-    
+
+    public static GameHandler instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
     // Update is called once per frame
     void Update()
     {
