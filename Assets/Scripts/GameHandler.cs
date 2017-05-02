@@ -11,6 +11,8 @@ public class GameHandler : MonoBehaviour
 
     public static GameHandler instance;
 
+    public static List <Player> players = new List<Player>();
+
     private void Awake()
     {
         instance = this;

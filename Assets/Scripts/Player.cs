@@ -5,19 +5,30 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 
-    public Weapon[] weapons;
-    public int currentWeapon;
+    public GameObject[] weapons;
+    public int currentWeaponIndex;
     public GameObject currentWeaponObject;
+
+    public void Awake()
+    {
+        GameHandler.players.Add(this);
+        SpawnCurrentWeapon();
+    }
+
+    public void OnDestroy()
+    {
+        GameHandler.players.Remove(this);
+    }
 
     /// <summary>
     /// Called by input manager to shoot
     /// </summary>
     public void HandleShootInput()
     {
-        if (weapons[currentWeapon] == null)
+        if (weapons[currentWeaponIndex] == null)
             return;
 
-        weapons[currentWeapon].TryShoot(transform.forward);
+        weapons[currentWeaponIndex].GetComponent<Weapon>().TryShoot(transform.forward);
     }
 
     /// <summary>
@@ -25,16 +36,20 @@ public class Player : MonoBehaviour
     /// </summary>
     public void HandleNextWeaponInput()
     {
-        weapons[currentWeapon].Despawn(this);
-        currentWeapon = (currentWeapon + 1) % weapons.Length;
-        weapons[currentWeapon].Spawn(this);
+        NextWeapon();
     }
 
-
-    private void Update()
+    private void NextWeapon()
     {
-        // Also updates selected targets
-        currentWeapon.Update();
+        Destroy(currentWeaponObject);
+        currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Length;
+
+        // Spawn weapon
+        SpawnCurrentWeapon();
     }
 
+    private void SpawnCurrentWeapon()
+    {
+        currentWeaponObject = Instantiate(weapons[currentWeaponIndex]) as GameObject;
+    }
 }

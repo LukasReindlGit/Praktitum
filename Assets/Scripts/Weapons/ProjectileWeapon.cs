@@ -11,19 +11,19 @@ public class ProjectileWeapon : Weapon
     public float frequency;
     public Vector3[] spawnpoints;
 
-    public void OnEnable()
+    public virtual void OnEnable()
     {
         usedTargetingSystem = new TestTargetingSystem();
     }
 
-    public override void Spawn()
+    public override Weapon Spawn(Player player)
     {
-        throw new NotImplementedException();
+        return this;
     }
-
         
     public override void TryShoot(Vector3 direction)
     {        
         throw new NotImplementedException();
     }
+    
 }
