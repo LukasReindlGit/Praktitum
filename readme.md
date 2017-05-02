@@ -9,7 +9,7 @@ Praktitumspiel 2017
 `git status`
 zeigt an in welchem Branch man sich befindet und wie der Zustand im vergleich zu origin ist
 
-`git add <filename>` fügt eine bestimmte Datei zum nächsten Commit hinzu. Mit `git add .` werden alle änderungen zum Commit hinzugefügt.
+`git add <filename>` fügt eine bestimmte Datei zum nächsten Commit hinzu. Mit `git add .` werden alle Änderungen zum Commit hinzugefügt.
 
 `git commit -m "<commit message>" ` erstellt einen lokalen Wiederherstellungspunkt.
 
