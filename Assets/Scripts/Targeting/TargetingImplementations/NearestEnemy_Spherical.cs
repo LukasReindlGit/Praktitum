@@ -24,6 +24,16 @@ public class NearestEnemy_Spherical : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+        GameObject[] obj = FindObjectsOfType<GameObject>();
+
+        for (int i = 0; i < obj.Length; i++)
+        {
+            if (obj[i].layer == LayerMask.NameToLayer("Shootable"))
+            {
+                obj[i].GetComponent<MeshRenderer>().material.color = Color.gray;
+            }
+        }
+
         List<GameObject> list = getNearestEnemies(transform.position, transform.forward, 50);
         for (int i = 0; i < list.Count; i++)
         {
