@@ -37,7 +37,6 @@ public class NearestEnemySpherical : MonoBehaviour {
         List<GameObject> list = getNearestEnemies(transform.position, transform.forward, 50);
         for (int i = 0; i < list.Count; i++)
         {
-            Debug.Log("Hit!");
             list[i].GetComponent<MeshRenderer>().material.color = Color.red;
         }
 
