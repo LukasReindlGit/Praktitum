@@ -8,6 +8,8 @@ namespace Weapons
     {
         private TargetingSystem targetingSystem;
 
+        List<Target> availableTargets;
+
         public override void Init()
         {
             base.Init();
@@ -22,14 +24,30 @@ namespace Weapons
 
         private void UpdateTargets(WeaponBehaviour weapon)
         {
-            throw new System.NotImplementedException();
+            availableTargets.Clear();
+            foreach(var a in targetingSystem.GetTargets(transform.forward, param.CriticalChance, param.Accuracy, param.SalveCount, param.Precision))
+            {
+                availableTargets.Add(a);
+            }
         }
 
         public override void PerformShoot()
         {
-            
-            // TODO: werte in param übernehmen. get target über salvenevent holen.
-            targetingSystem.GetTargets(transform.forward, 0.5f, 0, param.salveCount, 1);
+
+            if (availableTargets == null || availableTargets.Count <= 0)
+            {
+                // Default shot straight forward
+                ShootDamagingRay(transform.position, transform.forward);
+            }
+            else
+            {
+                // Shoot at first target in list.
+                
+                Vector3 direction = (availableTargets[0].TargetPos - transform.position).normalized;
+                ShootDamagingRay(transform.position, direction);
+
+                availableTargets.RemoveAt(0);
+            }
         }
     }
 }

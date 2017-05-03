@@ -55,7 +55,7 @@ namespace Weapons
 
         public virtual void Init()
         {
-            currentClip = param.clipSize;
+            currentClip = param.ClipSize;
             readyToShoot = true;
         }
 
@@ -95,7 +95,7 @@ namespace Weapons
                 if (StartedLoading != null) StartedLoading.Invoke(this);
 
                 // Wait loadingTime
-                yield return new WaitForSeconds(param.loadingTime);
+                yield return new WaitForSeconds(param.LoadingTime);
 
                 // Fire event FinishedLoading
                 if (FinishedLoading != null) FinishedLoading.Invoke(this);
@@ -113,7 +113,7 @@ namespace Weapons
                 isWaitingForRelease = true;
 
                 // Shoot each shot of the salve
-                for (int i = param.salveCount; i > 0; i--)
+                for (int i = param.SalveCount; i > 0; i--)
                 {
                     // Fire event FiredShot
                     if (FiredShot != null) FiredShot.Invoke(this);
@@ -123,7 +123,7 @@ namespace Weapons
                     if (StartedCooldown != null) StartedCooldown.Invoke(this);
                     
                     // Wait the cooldown time
-                    yield return new WaitForSeconds(param.cooldownTime);
+                    yield return new WaitForSeconds(param.CooldownTime);
 
                     // Fire event FinishedCooldown
                     if (FinishedCooldown != null) FinishedCooldown.Invoke(this);
@@ -139,8 +139,8 @@ namespace Weapons
                     // Fire event StartedReload
                     if (StartedReload != null) StartedReload.Invoke(this);
 
-                    yield return new WaitForSeconds(param.reloadTime);
-                    currentClip = param.clipSize;
+                    yield return new WaitForSeconds(param.ReloadTime);
+                    currentClip = param.ClipSize;
 
                     // Fire event FinishedReload
                     if (FinishedReload != null) FinishedReload.Invoke(this);
@@ -150,7 +150,7 @@ namespace Weapons
                 Debug.Log("Repeat");
 
                 // if we have a continuous fire weapon, Continue shooting until we release the button.
-            } while (param.isContinuousFire && isPressingButton);
+            } while (param.IsContinuousFire && isPressingButton);
 
             readyToShoot = true;
         }
