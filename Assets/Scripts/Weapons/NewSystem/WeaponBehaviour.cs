@@ -76,7 +76,6 @@ namespace Weapons
 
         private void TryShoot()
         {
-            Debug.Log("Try Shoot");
             if (readyToShoot || true)
             {
                 timeStampLastTryShot = Time.time;
@@ -145,10 +144,7 @@ namespace Weapons
                     // Fire event FinishedReload
                     if (FinishedReload != null) FinishedReload.Invoke(this);
                 }
-
-
-                Debug.Log("Repeat");
-
+                                
                 // if we have a continuous fire weapon, Continue shooting until we release the button.
             } while (param.IsContinuousFire && isPressingButton);
 

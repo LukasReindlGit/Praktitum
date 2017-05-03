@@ -7,7 +7,6 @@ public class TestTarget : MonoBehaviour , IDamageable {
 
     public void DoDamage(float amount)
     {
-        Debug.Log("HIT!");
         StartCoroutine(HitAnimation());
     }
     
