@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NearestEnemy_Spherical : MonoBehaviour {
+public class NearestEnemySpherical : MonoBehaviour {
 
     private Collider[] enemies;
     public LayerMask enemyMask, rayMask;
@@ -41,22 +41,49 @@ public class NearestEnemy_Spherical : MonoBehaviour {
             list[i].GetComponent<MeshRenderer>().material.color = Color.red;
         }
 
+        getTargetEnemy(transform.position, transform.forward, list).GetComponent<MeshRenderer>().material.color = Color.green;
+
 	}
 
     public List<GameObject> getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
+        // Search for all enemies in a sphere around the weapon
         enemies = Physics.OverlapSphere(position, maxDistance, enemyMask);
-        Debug.Log(enemies.Length);
+
         List<GameObject> result = new List<GameObject>();
         for (int i = 0; i < enemies.Length; i++)
         {
-            Debug.Log("Found!");
+            // Get all enemies in Sight
             if (enemyInSight(enemies[i].gameObject, position, direction))
             {
-                Debug.Log("In Sight!");
                 result.Add(enemies[i].gameObject);
             }
         }
+        return result;
+    }
+
+    public GameObject getTargetEnemy(Vector3 position, Vector3 direction, float maxDistance)
+    {
+        List<GameObject> listOfEnemies = getNearestEnemies(position, direction, maxDistance);
+        return getTargetEnemy(position, direction, listOfEnemies);
+    }
+
+    public GameObject getTargetEnemy(Vector3 position, Vector3 direction, List<GameObject> listOfEnemies)
+    {
+        GameObject result = (listOfEnemies.Count > 0) ? listOfEnemies[0] : null;
+        float distance = (result != null) ? Vector3.Distance(position, result.transform.position) : 0f;
+        float newDistance = 0f;
+
+        for (int i = 1; i < listOfEnemies.Count; i++)
+        {
+            newDistance = Vector3.Distance(position, listOfEnemies[i].transform.position);
+            if (newDistance < distance)
+            {
+                distance = newDistance;
+                result = listOfEnemies[i];
+            }
+        }
+
         return result;
     }
 
