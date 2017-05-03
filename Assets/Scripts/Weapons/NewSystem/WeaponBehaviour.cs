@@ -7,7 +7,8 @@ namespace Weapons
 {
     public abstract class WeaponBehaviour : MonoBehaviour
     {
-      
+        public delegate void WeaponEvent(WeaponBehaviour weapon);
+
         #region Variables
 
         public KeyCode debugShootKey = KeyCode.Return;
@@ -19,11 +20,29 @@ namespace Weapons
 
         protected bool isPressingButton;
         protected bool isWaitingForRelease = false;
-        
+
         protected int currentClip = 0;
         private bool readyToShoot = true;
 
         private float timeStampLastTryShot;
+
+        #endregion
+
+        #region Events
+        public event WeaponEvent StartedLoading;
+        public event WeaponEvent FinishedLoading;
+        public event WeaponEvent AbortedLoading;
+
+        public event WeaponEvent StartedSalve;
+        public event WeaponEvent FinishedSalve;
+
+        public event WeaponEvent FiredShot;
+
+        public event WeaponEvent StartedCooldown;
+        public event WeaponEvent FinishedCooldown;
+
+        public event WeaponEvent StartedReload;
+        public event WeaponEvent FinishedReload;
 
         #endregion
 
@@ -68,27 +87,46 @@ namespace Weapons
         IEnumerator ShootLoop(float timeStamp)
         {
 
-            Debug.Log("Starting Coroutine");
             do
             {
-                Debug.Log("LOADING");
-                // Load the shot
+                #region Load the shot
+
+                // Fire event StartedLoading
+                if (StartedLoading != null) StartedLoading.Invoke(this);
+
+                // Wait loadingTime
                 yield return new WaitForSeconds(param.loadingTime);
 
+                // Fire event FinishedLoading
+                if (FinishedLoading != null) FinishedLoading.Invoke(this);
+
                 readyToShoot = false;
+                #endregion
 
                 // Check if we aborted the loading by releasing or repressing
                 if (!isPressingButton || timeStampLastTryShot != timeStamp)
+                {
+                    // Fire event Aborted
+                    if (AbortedLoading != null) AbortedLoading.Invoke(this);
                     yield break;
-
+                }
                 isWaitingForRelease = true;
 
                 // Shoot each shot of the salve
                 for (int i = param.salveCount; i > 0; i--)
                 {
-                    Debug.Log("SHOT!");
+                    // Fire event FiredShot
+                    if (FiredShot != null) FiredShot.Invoke(this);
                     PerformShoot();
+
+                    // Fire event StartedCooldown
+                    if (StartedCooldown != null) StartedCooldown.Invoke(this);
+                    
+                    // Wait the cooldown time
                     yield return new WaitForSeconds(param.cooldownTime);
+
+                    // Fire event FinishedCooldown
+                    if (FinishedCooldown != null) FinishedCooldown.Invoke(this);
                 }
 
                 // Use ammo from the clip
@@ -98,9 +136,14 @@ namespace Weapons
                 if (currentClip <= 0)
                 {
 
-                    Debug.Log("Reloading");
+                    // Fire event StartedReload
+                    if (StartedReload != null) StartedReload.Invoke(this);
+
                     yield return new WaitForSeconds(param.reloadTime);
                     currentClip = param.clipSize;
+
+                    // Fire event FinishedReload
+                    if (FinishedReload != null) FinishedReload.Invoke(this);
                 }
 
 

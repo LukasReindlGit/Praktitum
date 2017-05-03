@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO : Remake the whole class
+
 public class Player : MonoBehaviour
 {
 
@@ -28,7 +30,7 @@ public class Player : MonoBehaviour
         if (weapons[currentWeaponIndex] == null)
             return;
 
-        weapons[currentWeaponIndex].GetComponent<Weapon>().TryShoot(transform.forward);
+ //       weapons[currentWeaponIndex].GetComponent<Weapon>().TryShoot(transform.forward);
     }
 
     /// <summary>
