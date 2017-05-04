@@ -3,27 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NearestEnemySpherical : MonoBehaviour {
+public class NearestEnemySpherical : MonoBehaviour
+{
 
-    private Collider[] enemies;
+    
     public LayerMask enemyMask, rayMask;
     public float playersViewAngle = 90f;
     public float playersNearViewAngle = 110f;
     public float immediateProximity = 15f;
 
     private List<GameObject> result;
+    private Collider[] enemies;
     private bool nearEnemyInView = false;
     private bool distantEnemyInView = false;
     private float distanceToEnemy = 0f;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         enemyMask = LayerMask.GetMask("Shootable");
         rayMask = LayerMask.GetMask("Shootable", "Obstacle");
     }
-	
-	// Update is called once per frame
-	void FixedUpdate () {
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
         GameObject[] obj = FindObjectsOfType<GameObject>();
 
         for (int i = 0; i < obj.Length; i++)
@@ -42,7 +46,7 @@ public class NearestEnemySpherical : MonoBehaviour {
 
         getTargetEnemy(transform.position, transform.forward, list).GetComponent<MeshRenderer>().material.color = Color.green;
 
-	}
+    }
 
     public List<GameObject> getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
