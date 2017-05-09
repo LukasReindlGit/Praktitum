@@ -8,15 +8,18 @@ public class NearestEnemySpherical : MonoBehaviour
 
     
     public LayerMask enemyMask, rayMask;
-    public float playersViewAngle = 90f;
-    public float playersNearViewAngle = 110f;
+    public float playersViewAngle = 10f;
+    public float playersNearViewAngle = 15f;
     public float immediateProximity = 15f;
+    
 
     private List<GameObject> result;
     private Collider[] enemies;
+    private float range = 50f;
     private bool nearEnemyInView = false;
     private bool distantEnemyInView = false;
-    private float distanceToEnemy = 0f;
+    private float distanceToEnemy;
+    private float angleToEnemy;
 
     // Use this for initialization
     void Start()
@@ -38,20 +41,25 @@ public class NearestEnemySpherical : MonoBehaviour
             }
         }
 
-        List<GameObject> list = getNearestEnemies(transform.position, transform.forward, 50);
+        List<GameObject> list = getNearestEnemies(transform.position, transform.forward, 20);
         for (int i = 0; i < list.Count; i++)
         {
             list[i].GetComponent<MeshRenderer>().material.color = Color.red;
         }
 
-        getTargetEnemy(transform.position, transform.forward, list).GetComponent<MeshRenderer>().material.color = Color.green;
+        GameObject n = getTargetEnemy(transform.position, transform.forward, list);
+        if (n != null) {
+            n.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        
 
     }
 
     public List<GameObject> getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
         // Search for all enemies in a sphere around the weapon
-        enemies = Physics.OverlapSphere(position, maxDistance, enemyMask);
+        range = maxDistance / 2.0f;
+        enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z).normalized * range, range, enemyMask);
 
         List<GameObject> result = new List<GameObject>();
         for (int i = 0; i < enemies.Length; i++)
@@ -65,6 +73,31 @@ public class NearestEnemySpherical : MonoBehaviour
         return result;
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.forward.normalized * range, range);
+
+        Gizmos.color = Color.blue;
+        Vector3 distPos = transform.position + transform.forward.normalized * range * 2;
+        Gizmos.DrawLine(transform.position, distPos);
+
+        Vector3 distPosRight = Quaternion.Euler(0, playersViewAngle, 0) * (distPos - transform.position) + transform.position;
+        Vector3 distPosLeft = Quaternion.Euler(0, -playersViewAngle, 0) * (distPos - transform.position) + transform.position;
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, distPosRight);
+        Gizmos.DrawLine(transform.position, distPosLeft);
+        Gizmos.DrawLine(distPosLeft, distPosRight);
+        
+        Vector3 distPosNear = transform.position + transform.forward.normalized * immediateProximity;
+        Vector3 distPosNearRight = Quaternion.Euler(0, playersNearViewAngle, 0) * (distPosNear - transform.position) + transform.position;
+        Vector3 distPosNearLeft = Quaternion.Euler(0, -playersNearViewAngle, 0) * (distPosNear - transform.position) + transform.position;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(transform.position, distPosNearRight);
+        Gizmos.DrawLine(transform.position, distPosNearLeft);
+        Gizmos.DrawLine(distPosNearLeft, distPosNearRight);
+    }
+
     public GameObject getTargetEnemy(Vector3 position, Vector3 direction, float maxDistance)
     {
         List<GameObject> listOfEnemies = getNearestEnemies(position, direction, maxDistance);
@@ -74,12 +107,11 @@ public class NearestEnemySpherical : MonoBehaviour
     public GameObject getTargetEnemy(Vector3 position, Vector3 direction, List<GameObject> listOfEnemies)
     {
         GameObject result = (listOfEnemies.Count > 0) ? listOfEnemies[0] : null;
-        float distance = (result != null) ? Vector3.Distance(position, result.transform.position) : 0f;
+        float distance = (result != null) ? (position - result.transform.position).sqrMagnitude : 0f;
         float newDistance = 0f;
-
         for (int i = 1; i < listOfEnemies.Count; i++)
         {
-            newDistance = Vector3.Distance(position, listOfEnemies[i].transform.position);
+            newDistance = (position - listOfEnemies[i].transform.position).sqrMagnitude;
             if (newDistance < distance)
             {
                 distance = newDistance;
@@ -94,13 +126,13 @@ public class NearestEnemySpherical : MonoBehaviour
     {
         RaycastHit hit;
         Vector3 rayDirection = enemy.transform.position - ownPosition;
-        distanceToEnemy = Vector3.Distance(ownPosition, enemy.transform.position);
+        distanceToEnemy = (ownPosition - enemy.transform.position).sqrMagnitude;
+        angleToEnemy = Vector2.Angle(new Vector2(rayDirection.x, rayDirection.z), new Vector2(ownDirection.x, ownDirection.z));
 
-        nearEnemyInView = Vector3.Angle(rayDirection, ownDirection) <= playersNearViewAngle
-                       && distanceToEnemy <= immediateProximity;
-        distantEnemyInView = Vector3.Angle(rayDirection, ownDirection) <= playersViewAngle;
+        nearEnemyInView = angleToEnemy <= playersNearViewAngle && distanceToEnemy <= immediateProximity * immediateProximity;
+        distantEnemyInView = angleToEnemy <= playersViewAngle;
 
-        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, distanceToEnemy * 2, rayMask))
+        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, distanceToEnemy, rayMask))
         {
             if (hit.collider.gameObject == enemy)
                 return true;
