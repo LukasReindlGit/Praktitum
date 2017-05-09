@@ -41,13 +41,13 @@ public class NearestEnemySpherical : MonoBehaviour
             }
         }
 
-        List<GameObject> list = getNearestEnemies(transform.position, transform.forward, 20);
-        for (int i = 0; i < list.Count; i++)
+        GameObject[] list = getNearestEnemies(transform.position, transform.forward, 20);
+        for (int i = 0; i < list.Length; i++)
         {
             list[i].GetComponent<MeshRenderer>().material.color = Color.red;
         }
 
-        GameObject n = getTargetEnemy(transform.position, transform.forward, list);
+        GameObject n = getTargetEnemy(list);
         if (n != null) {
             n.GetComponent<MeshRenderer>().material.color = Color.green;
         }
@@ -55,7 +55,7 @@ public class NearestEnemySpherical : MonoBehaviour
 
     }
 
-    public List<GameObject> getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
+    public GameObject[] getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
         // Search for all enemies in a sphere around the weapon
         range = maxDistance / 2.0f;
@@ -70,7 +70,64 @@ public class NearestEnemySpherical : MonoBehaviour
                 result.Add(enemies[i].gameObject);
             }
         }
+
+        result.Sort( (a, b) => {
+            if ((a.transform.position - position).sqrMagnitude > (b.transform.position - position).sqrMagnitude)
+                return 1;
+            else if ((a.transform.position - position).sqrMagnitude < (b.transform.position - position).sqrMagnitude)
+                return -1;
+            else return 0;
+        });
+
+        return result.ToArray();
+    }
+
+    public GameObject getTargetEnemy(Vector3 position, Vector3 direction, float maxDistance)
+    {
+        GameObject[] arrayEnemies = getNearestEnemies(position, direction, maxDistance);
+        return getTargetEnemy(arrayEnemies);//getTargetEnemy(position, direction, listOfEnemies);
+    }
+
+    public GameObject getTargetEnemy(GameObject[] arrayEnemies) 
+    {
+        return (arrayEnemies.Length > 0) ? arrayEnemies[0] : null;
+    }
+
+    /*public GameObject getTargetEnemy(Vector3 position, Vector3 direction, List<GameObject> listOfEnemies)
+    {
+        GameObject result = (listOfEnemies.Count > 0) ? listOfEnemies[0] : null;
+        float distance = (result != null) ? (position - result.transform.position).sqrMagnitude : 0f;
+        float newDistance = 0f;
+        for (int i = 1; i < listOfEnemies.Count; i++)
+        {
+            newDistance = (position - listOfEnemies[i].transform.position).sqrMagnitude;
+            if (newDistance < distance)
+            {
+                distance = newDistance;
+                result = listOfEnemies[i];
+            }
+        }
+
         return result;
+    }*/
+
+    private bool enemyInSight(GameObject enemy, Vector3 ownPosition, Vector3 ownDirection)
+    {
+        RaycastHit hit;
+        Vector3 rayDirection = enemy.transform.position - ownPosition;
+        distanceToEnemy = (ownPosition - enemy.transform.position).sqrMagnitude;
+        angleToEnemy = Vector2.Angle(new Vector2(rayDirection.x, rayDirection.z), new Vector2(ownDirection.x, ownDirection.z));
+
+        nearEnemyInView = angleToEnemy <= playersNearViewAngle && distanceToEnemy <= immediateProximity * immediateProximity;
+        distantEnemyInView = angleToEnemy <= playersViewAngle;
+
+        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, range * 2, rayMask))
+        {
+            if (hit.collider.gameObject == enemy)
+                return true;
+        }
+
+        return false;
     }
 
     private void OnDrawGizmosSelected()
@@ -88,7 +145,7 @@ public class NearestEnemySpherical : MonoBehaviour
         Gizmos.DrawLine(transform.position, distPosRight);
         Gizmos.DrawLine(transform.position, distPosLeft);
         Gizmos.DrawLine(distPosLeft, distPosRight);
-        
+
         Vector3 distPosNear = transform.position + transform.forward.normalized * immediateProximity;
         Vector3 distPosNearRight = Quaternion.Euler(0, playersNearViewAngle, 0) * (distPosNear - transform.position) + transform.position;
         Vector3 distPosNearLeft = Quaternion.Euler(0, -playersNearViewAngle, 0) * (distPosNear - transform.position) + transform.position;
@@ -96,48 +153,5 @@ public class NearestEnemySpherical : MonoBehaviour
         Gizmos.DrawLine(transform.position, distPosNearRight);
         Gizmos.DrawLine(transform.position, distPosNearLeft);
         Gizmos.DrawLine(distPosNearLeft, distPosNearRight);
-    }
-
-    public GameObject getTargetEnemy(Vector3 position, Vector3 direction, float maxDistance)
-    {
-        List<GameObject> listOfEnemies = getNearestEnemies(position, direction, maxDistance);
-        return getTargetEnemy(position, direction, listOfEnemies);
-    }
-
-    public GameObject getTargetEnemy(Vector3 position, Vector3 direction, List<GameObject> listOfEnemies)
-    {
-        GameObject result = (listOfEnemies.Count > 0) ? listOfEnemies[0] : null;
-        float distance = (result != null) ? (position - result.transform.position).sqrMagnitude : 0f;
-        float newDistance = 0f;
-        for (int i = 1; i < listOfEnemies.Count; i++)
-        {
-            newDistance = (position - listOfEnemies[i].transform.position).sqrMagnitude;
-            if (newDistance < distance)
-            {
-                distance = newDistance;
-                result = listOfEnemies[i];
-            }
-        }
-
-        return result;
-    }
-
-    private bool enemyInSight(GameObject enemy, Vector3 ownPosition, Vector3 ownDirection)
-    {
-        RaycastHit hit;
-        Vector3 rayDirection = enemy.transform.position - ownPosition;
-        distanceToEnemy = (ownPosition - enemy.transform.position).sqrMagnitude;
-        angleToEnemy = Vector2.Angle(new Vector2(rayDirection.x, rayDirection.z), new Vector2(ownDirection.x, ownDirection.z));
-
-        nearEnemyInView = angleToEnemy <= playersNearViewAngle && distanceToEnemy <= immediateProximity * immediateProximity;
-        distantEnemyInView = angleToEnemy <= playersViewAngle;
-
-        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, distanceToEnemy, rayMask))
-        {
-            if (hit.collider.gameObject == enemy)
-                return true;
-        }
-
-        return false;
     }
 }
