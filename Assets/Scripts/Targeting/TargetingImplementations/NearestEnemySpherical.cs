@@ -73,10 +73,17 @@ public class NearestEnemySpherical : MonoBehaviour
 
         result.Sort( (a, b) => {
             if ((a.transform.position - position).sqrMagnitude > (b.transform.position - position).sqrMagnitude)
+            {
                 return 1;
+            }
             else if ((a.transform.position - position).sqrMagnitude < (b.transform.position - position).sqrMagnitude)
+            {
                 return -1;
-            else return 0;
+            }
+            else
+            {
+                return 0;
+            }
         });
 
         return result.ToArray();
