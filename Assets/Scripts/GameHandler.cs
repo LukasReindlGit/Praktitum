@@ -8,6 +8,7 @@ public class GameHandler : MonoBehaviour
 {
 
     public static event DefaultDelegate UpdateEvent;
+    public static event DefaultDelegate OnGizmoDrawEvent;
 
     public static GameHandler instance;
 
@@ -16,6 +17,11 @@ public class GameHandler : MonoBehaviour
     private void Awake()
     {
         instance = this;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (OnGizmoDrawEvent != null) OnGizmoDrawEvent();
     }
 
     // Update is called once per frame
