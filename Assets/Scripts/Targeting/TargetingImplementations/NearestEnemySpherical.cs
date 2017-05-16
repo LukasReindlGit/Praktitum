@@ -31,7 +31,7 @@ public class NearestEnemySpherical
         this.rayMask = rayMask;
         this.currentDirection = direction.normalized;
         this.currentPosition = position;
-        this.range = range;
+        this.range = range / 2.0f;
         this.playersViewAngle = playersViewAngle;
         this.playersNearViewAngle = playersNearViewAngle;
         this.immediateProximity = immediateProximity;
@@ -42,11 +42,16 @@ public class NearestEnemySpherical
 
     public void updateNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
+        range = maxDistance / 2.0f;
+        updateNearestEnemies(position, direction);
+    }
+
+    public void updateNearestEnemies(Vector3 position, Vector3 direction)
+    {
         currentPosition = position;
         currentDirection = direction.normalized;
 
         // Search for all enemies in a sphere around the weapon
-        range = maxDistance / 2.0f;
         enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z).normalized * range, range, enemyMask);
 
         result.Clear();
@@ -82,6 +87,13 @@ public class NearestEnemySpherical
         updateNearestEnemies(position, direction, maxDistance);
         return getNearestEnemies();
     }
+
+    public GameObject[] getNearestEnemies(Vector3 position, Vector3 direction)
+    {
+        updateNearestEnemies(position, direction);
+        return getNearestEnemies();
+    }
+
     public GameObject[] getNearestEnemies()
     {
         return sortedEnemies;
@@ -89,32 +101,20 @@ public class NearestEnemySpherical
 
     public GameObject getTargetEnemy(Vector3 position, Vector3 direction, float maxDistance)
     {
-        GameObject[] arrayEnemies = getNearestEnemies(position, direction, maxDistance);
-        return getTargetEnemy(arrayEnemies);//getTargetEnemy(position, direction, listOfEnemies);
+        getNearestEnemies(position, direction, maxDistance);
+        return getTargetEnemy();
     }
 
-    public GameObject getTargetEnemy(GameObject[] arrayEnemies) 
+    public GameObject getTargetEnemy(Vector3 position, Vector3 direction)
     {
-        return (arrayEnemies.Length > 0) ? arrayEnemies[0] : null;
+        getNearestEnemies(position, direction);
+        return getTargetEnemy();
     }
 
-    /*public GameObject getTargetEnemy(Vector3 position, Vector3 direction, List<GameObject> listOfEnemies)
+    public GameObject getTargetEnemy()
     {
-        GameObject result = (listOfEnemies.Count > 0) ? listOfEnemies[0] : null;
-        float distance = (result != null) ? (position - result.transform.position).sqrMagnitude : 0f;
-        float newDistance = 0f;
-        for (int i = 1; i < listOfEnemies.Count; i++)
-        {
-            newDistance = (position - listOfEnemies[i].transform.position).sqrMagnitude;
-            if (newDistance < distance)
-            {
-                distance = newDistance;
-                result = listOfEnemies[i];
-            }
-        }
-
-        return result;
-    }*/
+        return (sortedEnemies.Length > 0) ? sortedEnemies[0] : null;
+    }
 
     private bool enemyInSight(GameObject enemy, Vector3 ownPosition, Vector3 ownDirection)
     {

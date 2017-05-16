@@ -8,6 +8,7 @@ public class HitScanTargeting : TargetingSystem
 {
     private NearestEnemySpherical system;
     private WeaponBehaviour weapon;
+    private GameObject target;
 
     public HitScanTargeting(WeaponBehaviour weapon)
     {
@@ -24,12 +25,25 @@ public class HitScanTargeting : TargetingSystem
 
     public override Target[] GetTargets(Vector3 direction, Parameters parameters)
     {
-        
-        throw new NotImplementedException();
+        Target[] targets = new Target[parameters.SalveCount];
+        int length = targets.Length;
+
+        target = system.getTargetEnemy();
+        if (target == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < length; i++)
+        {
+            targets[i] = new Target(target, Vector3.zero);
+        }
+
+        return targets;
     }
 
     public override void UpdateTargetSystem(Vector3 position, Vector3 direction)
     {
-        throw new NotImplementedException();
+        system.updateNearestEnemies(position, direction);
     }
 }
