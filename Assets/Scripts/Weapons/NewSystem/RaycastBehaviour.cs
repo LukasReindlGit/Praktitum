@@ -20,6 +20,11 @@ namespace Weapons
             Ray ray = new Ray(origin, direction * param.Range);
             if (Physics.Raycast(ray, out hit))
             {
+                // Call Event for eventual impact sounds or effects
+
+                CallHitEvent(hit, origin);
+
+                // Make damage
                 IDamageable damagableTarget = hit.transform.GetComponent<IDamageable>();
                 if (damagableTarget != null)
                 {
