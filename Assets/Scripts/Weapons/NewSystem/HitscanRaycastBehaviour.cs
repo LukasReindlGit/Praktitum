@@ -33,7 +33,6 @@ namespace Weapons
 
         public override void PerformShoot()
         {
-
             if (availableTargets == null || availableTargets.Count <= 0)
             {
                 // Default shot straight forward
