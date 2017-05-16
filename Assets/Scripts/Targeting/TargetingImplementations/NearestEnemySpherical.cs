@@ -137,7 +137,7 @@ public class NearestEnemySpherical : MonoBehaviour
         return false;
     }
 
-    private void OnDrawGizmosSelected()
+    private void DrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position + transform.forward.normalized * range, range);
