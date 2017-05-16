@@ -11,6 +11,8 @@ namespace Weapons
 
         public delegate void WeaponHitEvent(WeaponBehaviour weapon, RaycastHit hit, Vector3 cameFromDir);
 
+        public delegate void WeaponShotEvent(WeaponBehaviour weapon, Vector3 origin, Vector3 direction);
+
         #region Variables
 
         public KeyCode debugShootKey = KeyCode.Return;
@@ -37,7 +39,7 @@ namespace Weapons
 
         public event WeaponEvent StartedSalve;
         public event WeaponEvent FinishedSalve;
-
+        
         public event WeaponEvent FiredShot;
         public event WeaponHitEvent HitSomething;
 
