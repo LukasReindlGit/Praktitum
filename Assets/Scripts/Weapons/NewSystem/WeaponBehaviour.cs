@@ -9,10 +9,14 @@ namespace Weapons
     {
         public delegate void WeaponEvent(WeaponBehaviour weapon);
 
+        public delegate void WeaponHitEvent(WeaponBehaviour weapon, RaycastHit hit, Vector3 cameFromDir);
+
+        public delegate void WeaponShotEvent(WeaponBehaviour weapon, Vector3 origin, Vector3 direction);
+
         #region Variables
 
         public KeyCode debugShootKey = KeyCode.Return;
-
+        
         /// <summary>
         /// Contains all the information about the weapon
         /// </summary>
@@ -35,8 +39,9 @@ namespace Weapons
 
         public event WeaponEvent StartedSalve;
         public event WeaponEvent FinishedSalve;
-
+        
         public event WeaponEvent FiredShot;
+        public event WeaponHitEvent HitSomething;
 
         public event WeaponEvent StartedCooldown;
         public event WeaponEvent FinishedCooldown;
@@ -76,7 +81,7 @@ namespace Weapons
 
         private void TryShoot()
         {
-            if (readyToShoot || true)
+            if (readyToShoot)
             {
                 timeStampLastTryShot = Time.time;
                 StartCoroutine(ShootLoop(timeStampLastTryShot));
@@ -85,11 +90,11 @@ namespace Weapons
 
         IEnumerator ShootLoop(float timeStamp)
         {
-
             do
             {
                 #region Load the shot
 
+                
                 // Fire event StartedLoading
                 if (StartedLoading != null) StartedLoading.Invoke(this);
 
@@ -100,6 +105,7 @@ namespace Weapons
                 if (FinishedLoading != null) FinishedLoading.Invoke(this);
 
                 readyToShoot = false;
+
                 #endregion
 
                 // Check if we aborted the loading by releasing or repressing
@@ -116,7 +122,7 @@ namespace Weapons
                 {
                     // Fire event FiredShot
                     if (FiredShot != null) FiredShot.Invoke(this);
-                    PerformShoot();
+                    PerformShoot();                    
 
                     // Fire event StartedCooldown
                     if (StartedCooldown != null) StartedCooldown.Invoke(this);
@@ -153,6 +159,10 @@ namespace Weapons
 
         public abstract void PerformShoot();
 
+        protected void CallHitEvent(RaycastHit hit, Vector3 shotOrigin)
+        {
+            if (HitSomething != null) HitSomething.Invoke(this,hit,shotOrigin);
+        }
         #endregion
     }
 }
