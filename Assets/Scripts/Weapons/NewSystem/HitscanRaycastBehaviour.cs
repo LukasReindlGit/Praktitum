@@ -25,7 +25,7 @@ namespace Weapons
         private void UpdateTargets(WeaponBehaviour weapon)
         {
             availableTargets.Clear();
-            foreach(var a in targetingSystem.GetTargets(transform.forward, param.CriticalChance, param.Accuracy, param.SalveCount, param.Precision))
+            foreach(var a in targetingSystem.GetTargets(transform.forward, param))
             {
                 availableTargets.Add(a);
             }

@@ -197,6 +197,22 @@ namespace Weapons {
                 accuracy = value;
             }
         }
+        
+        [SerializeField]
+        private float angle = 2;
+        public float Angle
+        {
+            get
+            {
+                return angle;
+            }
+
+            set
+            {
+                angle = value;
+            }
+        }
+              
 
     }
 }

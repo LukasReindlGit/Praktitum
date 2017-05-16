@@ -3,57 +3,58 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NearestEnemySpherical : MonoBehaviour
+public class NearestEnemySpherical 
 {
 
     
-    public LayerMask enemyMask, rayMask;
-    public float playersViewAngle = 90f;
-    public float playersNearViewAngle = 110f;
-    public float immediateProximity = 15f;
+    private LayerMask enemyMask, rayMask;
+    private Vector3 currentPosition;
+    private Vector3 currentDirection;
+    private float playersViewAngle = 10f;
+    private float playersNearViewAngle = 15f;
+    private float immediateProximity = 15f;
+    
+    private GameObject[] sortedEnemies;
 
     private List<GameObject> result;
     private Collider[] enemies;
+    private float range;
     private bool nearEnemyInView = false;
     private bool distantEnemyInView = false;
-    private float distanceToEnemy = 0f;
+    private float distanceToEnemy;
+    private float angleToEnemy;
 
     // Use this for initialization
-    void Start()
+    public NearestEnemySpherical(LayerMask enemyLayer, LayerMask rayMask, Vector3 position, Vector3 direction, float range, float playersViewAngle = 5, float playersNearViewAngle = 10, float immediateProximity = 10)
     {
-        enemyMask = LayerMask.GetMask("Shootable");
-        rayMask = LayerMask.GetMask("Shootable", "Obstacle");
+        this.enemyMask = enemyLayer;
+        this.rayMask = rayMask;
+        this.currentDirection = direction.normalized;
+        this.currentPosition = position;
+        this.range = range / 2.0f;
+        this.playersViewAngle = playersViewAngle;
+        this.playersNearViewAngle = playersNearViewAngle;
+        this.immediateProximity = immediateProximity;
+
+        result = new List<GameObject>();
+        GameHandler.OnGizmoDrawEvent += DrawGizmos;
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    public void updateNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
-        GameObject[] obj = FindObjectsOfType<GameObject>();
-
-        for (int i = 0; i < obj.Length; i++)
-        {
-            if (obj[i].layer == LayerMask.NameToLayer("Shootable"))
-            {
-                obj[i].GetComponent<MeshRenderer>().material.color = Color.gray;
-            }
-        }
-
-        List<GameObject> list = getNearestEnemies(transform.position, transform.forward, 50);
-        for (int i = 0; i < list.Count; i++)
-        {
-            list[i].GetComponent<MeshRenderer>().material.color = Color.red;
-        }
-
-        getTargetEnemy(transform.position, transform.forward, list).GetComponent<MeshRenderer>().material.color = Color.green;
-
+        range = maxDistance / 2.0f;
+        updateNearestEnemies(position, direction);
     }
 
-    public List<GameObject> getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
+    public void updateNearestEnemies(Vector3 position, Vector3 direction)
     {
+        currentPosition = position;
+        currentDirection = direction.normalized;
+
         // Search for all enemies in a sphere around the weapon
-        enemies = Physics.OverlapSphere(position, maxDistance, enemyMask);
+        enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z).normalized * range, range, enemyMask);
 
-        List<GameObject> result = new List<GameObject>();
+        result.Clear();
         for (int i = 0; i < enemies.Length; i++)
         {
             // Get all enemies in Sight
@@ -62,50 +63,119 @@ public class NearestEnemySpherical : MonoBehaviour
                 result.Add(enemies[i].gameObject);
             }
         }
-        return result;
+
+        result.Sort((a, b) => {
+            if ((a.transform.position - position).sqrMagnitude > (b.transform.position - position).sqrMagnitude)
+            {
+                return 1;
+            }
+            else if ((a.transform.position - position).sqrMagnitude < (b.transform.position - position).sqrMagnitude)
+            {
+                return -1;
+            }
+            else
+            {
+                return 0;
+            }
+        });
+
+        sortedEnemies = result.ToArray();
+    }
+
+    public GameObject[] getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
+    {
+        updateNearestEnemies(position, direction, maxDistance);
+        return getNearestEnemies();
+    }
+
+    public GameObject[] getNearestEnemies(Vector3 position, Vector3 direction)
+    {
+        updateNearestEnemies(position, direction);
+        return getNearestEnemies();
+    }
+
+    public GameObject[] getNearestEnemies()
+    {
+        return sortedEnemies;
     }
 
     public GameObject getTargetEnemy(Vector3 position, Vector3 direction, float maxDistance)
     {
-        List<GameObject> listOfEnemies = getNearestEnemies(position, direction, maxDistance);
-        return getTargetEnemy(position, direction, listOfEnemies);
+        getNearestEnemies(position, direction, maxDistance);
+        return getTargetEnemy();
     }
 
-    public GameObject getTargetEnemy(Vector3 position, Vector3 direction, List<GameObject> listOfEnemies)
+    public GameObject getTargetEnemy(Vector3 position, Vector3 direction)
     {
-        GameObject result = (listOfEnemies.Count > 0) ? listOfEnemies[0] : null;
-        float distance = (result != null) ? Vector3.Distance(position, result.transform.position) : 0f;
-        float newDistance = 0f;
+        getNearestEnemies(position, direction);
+        return getTargetEnemy();
+    }
 
-        for (int i = 1; i < listOfEnemies.Count; i++)
-        {
-            newDistance = Vector3.Distance(position, listOfEnemies[i].transform.position);
-            if (newDistance < distance)
-            {
-                distance = newDistance;
-                result = listOfEnemies[i];
-            }
-        }
-
-        return result;
+    public GameObject getTargetEnemy()
+    {
+        return (sortedEnemies.Length > 0) ? sortedEnemies[0] : null;
     }
 
     private bool enemyInSight(GameObject enemy, Vector3 ownPosition, Vector3 ownDirection)
     {
         RaycastHit hit;
         Vector3 rayDirection = enemy.transform.position - ownPosition;
-        distanceToEnemy = Vector3.Distance(ownPosition, enemy.transform.position);
+        distanceToEnemy = (ownPosition - enemy.transform.position).sqrMagnitude;
+        angleToEnemy = Vector2.Angle(new Vector2(rayDirection.x, rayDirection.z), new Vector2(ownDirection.x, ownDirection.z));
 
-        nearEnemyInView = Vector3.Angle(rayDirection, ownDirection) <= playersNearViewAngle
-                       && distanceToEnemy <= immediateProximity;
-        distantEnemyInView = Vector3.Angle(rayDirection, ownDirection) <= playersViewAngle;
+        nearEnemyInView = angleToEnemy <= playersNearViewAngle && distanceToEnemy <= immediateProximity * immediateProximity;
+        distantEnemyInView = angleToEnemy <= playersViewAngle;
 
-        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, distanceToEnemy * 2, rayMask))
+        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, range * 2, rayMask))
         {
             if (hit.collider.gameObject == enemy)
                 return true;
         }
 
         return false;
+    }
+
+    private void DrawGizmos()
+    {
+        // Sphere
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(currentPosition + currentDirection * range, range);
+
+        // Local Z-Axis (View-Axis)
+        Gizmos.color = Color.blue;
+        Vector3 distPos = currentPosition + currentDirection * range * 2;
+        Gizmos.DrawLine(currentPosition, distPos);
+
+        // Full View Angle
+        Vector3 distPosRight = Quaternion.Euler(0, playersViewAngle, 0) * (distPos - currentPosition) + currentPosition;
+        Vector3 distPosLeft = Quaternion.Euler(0, -playersViewAngle, 0) * (distPos - currentPosition) + currentPosition;
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(currentPosition, distPosRight);
+        Gizmos.DrawLine(currentPosition, distPosLeft);
+        Gizmos.DrawLine(distPosLeft, distPosRight);
+
+        // Proximity View Angle
+        Vector3 distPosNear = currentPosition + currentDirection * immediateProximity;
+        Vector3 distPosNearRight = Quaternion.Euler(0, playersNearViewAngle, 0) * (distPosNear - currentPosition) + currentPosition;
+        Vector3 distPosNearLeft = Quaternion.Euler(0, -playersNearViewAngle, 0) * (distPosNear - currentPosition) + currentPosition;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(currentPosition, distPosNearRight);
+        Gizmos.DrawLine(currentPosition, distPosNearLeft);
+        Gizmos.DrawLine(distPosNearLeft, distPosNearRight);
+
+        // Mark enemies (green = target, red = other seen enemies)
+        int length = sortedEnemies.Length;
+        for (int i = 0; i < length; i++)
+        {
+            if (i != 0)
+            {
+                Gizmos.color = Color.red;
+            } else
+            {
+                Gizmos.color = Color.green;
+            }
+            
+            Gizmos.DrawWireCube(sortedEnemies[i].transform.position, sortedEnemies[i].GetComponent<Renderer>().bounds.size);
+        }
     }
 }
