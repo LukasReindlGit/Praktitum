@@ -3,14 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NearestEnemySpherical : MonoBehaviour
+public class NearestEnemySpherical 
 {
 
     
-    public LayerMask enemyMask, rayMask;
-    public float playersViewAngle = 10f;
-    public float playersNearViewAngle = 15f;
-    public float immediateProximity = 15f;
+    private LayerMask enemyMask, rayMask;
+    private Vector3 currentPosition;
+    private Vector3 currentDirection;
+    private float playersViewAngle = 10f;
+    private float playersNearViewAngle = 15f;
+    private float immediateProximity = 15f;
     
     private GameObject[] sortedEnemies;
 
@@ -23,25 +25,26 @@ public class NearestEnemySpherical : MonoBehaviour
     private float angleToEnemy;
 
     // Use this for initialization
-    void Start()
+    public NearestEnemySpherical(LayerMask enemyLayer, LayerMask rayMask, Vector3 position, Vector3 direction, float range, float playersViewAngle = 5, float playersNearViewAngle = 10, float immediateProximity = 10)
     {
-        enemyMask = LayerMask.GetMask("Shootable");
-        rayMask = LayerMask.GetMask("Shootable", "Obstacle");
+        this.enemyMask = enemyLayer;
+        this.rayMask = rayMask;
+        this.currentDirection = direction.normalized;
+        this.currentPosition = position;
+        this.range = range;
+        this.playersViewAngle = playersViewAngle;
+        this.playersNearViewAngle = playersNearViewAngle;
+        this.immediateProximity = immediateProximity;
+
         result = new List<GameObject>();
         GameHandler.OnGizmoDrawEvent += DrawGizmos;
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-
-
-        GameObject[] list = getNearestEnemies(transform.position, transform.forward, 20);
-        
-    }
-
     public void updateNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
+        currentPosition = position;
+        currentDirection = direction.normalized;
+
         // Search for all enemies in a sphere around the weapon
         range = maxDistance / 2.0f;
         enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z).normalized * range, range, enemyMask);
@@ -136,28 +139,28 @@ public class NearestEnemySpherical : MonoBehaviour
     {
         // Sphere
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position + transform.forward.normalized * range, range);
+        Gizmos.DrawWireSphere(currentPosition + currentDirection * range, range);
 
         // Local Z-Axis (View-Axis)
         Gizmos.color = Color.blue;
-        Vector3 distPos = transform.position + transform.forward.normalized * range * 2;
-        Gizmos.DrawLine(transform.position, distPos);
+        Vector3 distPos = currentPosition + currentDirection * range * 2;
+        Gizmos.DrawLine(currentPosition, distPos);
 
         // Full View Angle
-        Vector3 distPosRight = Quaternion.Euler(0, playersViewAngle, 0) * (distPos - transform.position) + transform.position;
-        Vector3 distPosLeft = Quaternion.Euler(0, -playersViewAngle, 0) * (distPos - transform.position) + transform.position;
+        Vector3 distPosRight = Quaternion.Euler(0, playersViewAngle, 0) * (distPos - currentPosition) + currentPosition;
+        Vector3 distPosLeft = Quaternion.Euler(0, -playersViewAngle, 0) * (distPos - currentPosition) + currentPosition;
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, distPosRight);
-        Gizmos.DrawLine(transform.position, distPosLeft);
+        Gizmos.DrawLine(currentPosition, distPosRight);
+        Gizmos.DrawLine(currentPosition, distPosLeft);
         Gizmos.DrawLine(distPosLeft, distPosRight);
 
         // Proximity View Angle
-        Vector3 distPosNear = transform.position + transform.forward.normalized * immediateProximity;
-        Vector3 distPosNearRight = Quaternion.Euler(0, playersNearViewAngle, 0) * (distPosNear - transform.position) + transform.position;
-        Vector3 distPosNearLeft = Quaternion.Euler(0, -playersNearViewAngle, 0) * (distPosNear - transform.position) + transform.position;
+        Vector3 distPosNear = currentPosition + currentDirection * immediateProximity;
+        Vector3 distPosNearRight = Quaternion.Euler(0, playersNearViewAngle, 0) * (distPosNear - currentPosition) + currentPosition;
+        Vector3 distPosNearLeft = Quaternion.Euler(0, -playersNearViewAngle, 0) * (distPosNear - currentPosition) + currentPosition;
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(transform.position, distPosNearRight);
-        Gizmos.DrawLine(transform.position, distPosNearLeft);
+        Gizmos.DrawLine(currentPosition, distPosNearRight);
+        Gizmos.DrawLine(currentPosition, distPosNearLeft);
         Gizmos.DrawLine(distPosNearLeft, distPosNearRight);
 
         // Mark enemies (green = target, red = other seen enemies)
