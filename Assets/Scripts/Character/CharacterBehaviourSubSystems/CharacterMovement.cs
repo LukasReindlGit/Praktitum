@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterBehaviour : MonoBehaviour {
-
-
+public class CharacterMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -15,14 +13,4 @@ public class CharacterBehaviour : MonoBehaviour {
 	void Update () {
 		
 	}
-
-    private void LateUpdate()
-    {
-
-    }
-
-    private void FixedUpdate()
-    {
-
-    }
 }
