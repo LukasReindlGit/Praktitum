@@ -16,10 +16,10 @@ public class HitScanTargeting : TargetingSystem
         system = new NearestEnemySpherical( 
                                             LayerMask.GetMask("Shootable"), 
                                             LayerMask.GetMask("Shootable", "Obstacle"), 
-                                            weapon.transform.position, 
-                                            weapon.transform.forward,
-                                            weapon.param.Range,
-                                            weapon.param.Angle
+                                            this.weapon.transform.position, 
+                                            this.weapon.transform.forward,
+                                            this.weapon.param.Range,
+                                            this.weapon.param.Angle
                                           );
     }
 
