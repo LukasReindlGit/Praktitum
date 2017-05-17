@@ -31,8 +31,6 @@ namespace Weapons
 
         private void UpdateTargets(WeaponBehaviour weapon)
         {
-            Debug.Log("UpdateTArgets");
-
             availableTargets.Clear();
             Target[] targetArr = targetingSystem.GetTargets(transform.forward, param);
             if (targetArr == null)
@@ -44,6 +42,9 @@ namespace Weapons
             }
         }
 
+        /// <summary>
+        /// Perform Shot
+        /// </summary>
         public override void PerformShoot()
         {
             if (availableTargets == null || availableTargets.Count <= 0)
