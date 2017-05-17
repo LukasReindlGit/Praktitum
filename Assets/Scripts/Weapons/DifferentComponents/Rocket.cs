@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Rocket : MonoBehaviour {
+public class Rocket : MonoBehaviour, IUsesTarget
+{
 
     [SerializeField]
     float speed = 10;
@@ -32,5 +34,10 @@ public class Rocket : MonoBehaviour {
 
         rigid.velocity = (transform.forward * speed);
         
+    }
+
+    public void SetTarget(Transform newTarget)
+    {
+        target = newTarget;
     }
 }
