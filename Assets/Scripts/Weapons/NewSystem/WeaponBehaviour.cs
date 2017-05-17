@@ -132,6 +132,8 @@ namespace Weapons
                 //}
                 //isWaitingForRelease = true;
 
+                if (StartedSalve != null) StartedSalve.Invoke(this);
+
                 // Shoot each shot of the salve
                 for (int i = param.SalveCount; i > 0; i--)
                 {
@@ -150,6 +152,7 @@ namespace Weapons
                     // Fire event FinishedCooldown
                     if (FinishedCooldown != null) FinishedCooldown.Invoke(this);
                 }
+                if (FinishedSalve != null) FinishedSalve.Invoke(this);
 
                 // Use ammo from the clip
                 currentClip--;
