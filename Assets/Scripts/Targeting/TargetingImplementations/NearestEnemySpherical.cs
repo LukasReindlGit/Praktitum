@@ -19,6 +19,7 @@ public class NearestEnemySpherical
 
     private bool nearEnemyInView = false, distantEnemyInView = false;
     private float maxDistance, sqrImmediateProximity, distanceToEnemy, angleToEnemy, distanceToA, distanceToB;
+    private int enemiesLength;
     private Vector3 rayDirection;
     private RaycastHit hit;
 
@@ -76,9 +77,10 @@ public class NearestEnemySpherical
 
         // Search for all enemies in a sphere around the weapon
         enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z).normalized * range, range, enemyMask);
+        enemiesLength = enemies.Length;
 
         result.Clear();
-        for (int i = 0; i < enemies.Length; i++)
+        for (int i = 0; i < enemiesLength; i++)
         {
             // Get all enemies in Sight
             if (enemyInSight(enemies[i].gameObject, position, direction))
