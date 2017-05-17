@@ -25,7 +25,36 @@ public class NearestEnemySpherical
 
 
     /// <summary>
-    /// Constructor.
+    /// Constructor. Calls the initialization method of the class.
+    /// </summary>
+    /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
+    /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction the weapon or player is looking.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    public NearestEnemySpherical(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle = 4.0f)
+    {
+        init(enemyLayers, rayMask, position, direction, maxDistance, playersViewAngle, 0.0f, maxDistance / 3.0f);
+    }
+
+    /// <summary>
+    /// Constructor. Calls the initialization method of the class.
+    /// </summary>
+    /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
+    /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction the weapon or player is looking.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="playersNearViewAngle">In the position's immediate proximity: the maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    public NearestEnemySpherical(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle, float playersNearViewAngle = 0.0f)
+    {
+        init(enemyLayers, rayMask, position, direction, maxDistance, playersViewAngle, playersNearViewAngle, maxDistance / 3.0f);
+    }
+
+    /// <summary>
+    /// Constructor. Calls the initialization method of the class.
     /// </summary>
     /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
     /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
@@ -35,7 +64,23 @@ public class NearestEnemySpherical
     /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
     /// <param name="playersNearViewAngle">In the position's immediate proximity: the maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
     /// <param name="immediateProximity">The maximum possible range the player can see with a bigger angle.</param>
-    public NearestEnemySpherical(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle = 5, float playersNearViewAngle = 10, float immediateProximity = 10)
+    public NearestEnemySpherical(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle, float playersNearViewAngle, float immediateProximity)
+    {
+        init(enemyLayers, rayMask, position, direction, maxDistance, playersViewAngle, playersNearViewAngle, immediateProximity);
+    }
+
+    /// <summary>
+    /// Initializes all the variables.
+    /// </summary>
+    /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
+    /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction the weapon or player is looking.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="playersNearViewAngle">In the position's immediate proximity: the maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="immediateProximity">The maximum possible range the player can see with a bigger angle.</param>
+    private void init(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle, float playersNearViewAngle, float immediateProximity)
     {
         enemyMask = enemyLayers;
         this.rayMask = rayMask;
