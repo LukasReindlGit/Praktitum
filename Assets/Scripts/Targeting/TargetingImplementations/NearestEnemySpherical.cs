@@ -84,7 +84,7 @@ public class NearestEnemySpherical
     {
         enemyMask = enemyLayers;
         this.rayMask = rayMask;
-        currentDirection = direction.normalized;
+        currentDirection = direction;
         currentPosition = position;
         this.maxDistance = maxDistance;
         range = maxDistance / 2.0f; // Distance to the center of the OverlapSphere
@@ -118,10 +118,10 @@ public class NearestEnemySpherical
     public void updateNearestEnemies(Vector3 position, Vector3 direction)
     {
         currentPosition = position;
-        currentDirection = direction.normalized;
+        currentDirection = direction;
 
         // Search for all enemies in a sphere around the weapon
-        enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z).normalized * range, range, enemyMask);
+        enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z) * range, range, enemyMask);
         enemiesLength = enemies.Length;
 
         result.Clear();
@@ -242,7 +242,9 @@ public class NearestEnemySpherical
         if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, maxDistance, rayMask))
         {
             if (hit.collider.gameObject == enemy)
+            {
                 return true;
+            }
         }
 
         return false;
