@@ -8,7 +8,7 @@ public class TestTargetingSystem : TargetingSystem
 {
     public override Target[] GetTargets(Vector3 direction, Parameters parameters)
     {
-        throw new NotImplementedException();
+        return null;
     }
 
     public override void UpdateTargetSystem(Vector3 position, Vector3 direction)
