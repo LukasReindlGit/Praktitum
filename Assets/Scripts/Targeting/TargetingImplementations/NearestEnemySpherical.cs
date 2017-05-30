@@ -11,7 +11,7 @@ public class NearestEnemySpherical
 
     private LayerMask enemyMask, rayMask;
     private Vector3 currentPosition, currentDirection;
-    private float range, playersViewAngle, playersNearViewAngle, immediateProximity;
+    private float sphereRangeToCenter, sphereRadius, playersViewAngle, playersNearViewAngle, immediateProximity;
     
     private GameObject[] sortedEnemies;
     private List<GameObject> result;
@@ -86,15 +86,35 @@ public class NearestEnemySpherical
         this.rayMask = rayMask;
         currentDirection = direction;
         currentPosition = position;
-        this.maxDistance = maxDistance;
-        range = maxDistance / 2.0f; // Distance to the center of the OverlapSphere
         this.playersViewAngle = playersViewAngle;
         this.playersNearViewAngle = playersNearViewAngle;
+        updateSphereParameters(maxDistance);
+
         this.immediateProximity = immediateProximity;
         sqrImmediateProximity = immediateProximity * immediateProximity;
 
         result = new List<GameObject>();
         GameHandler.OnGizmoDrawEvent += DrawGizmos; // To draw the gizmos we have to add our method to a monobehaviour event system
+    }
+
+    /// <summary>
+    /// Updates all sphere parameters (radius and range to the center of the sphere). The values depend on the view angles.
+    /// </summary>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    private void updateSphereParameters(float maxDistance)
+    {
+        this.maxDistance = maxDistance;
+
+        if (playersNearViewAngle < 90.0f || playersViewAngle < 90.0f)
+        {
+            sphereRangeToCenter = this.maxDistance / 2.0f;
+            sphereRadius = sphereRangeToCenter;
+        }
+        else
+        {
+            sphereRangeToCenter = 0;
+            sphereRadius = this.maxDistance;
+        }
     }
 
     /// <summary>
@@ -105,8 +125,7 @@ public class NearestEnemySpherical
     /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
     public void updateNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
     {
-        this.maxDistance = maxDistance;
-        range = maxDistance / 2.0f;
+        updateSphereParameters(maxDistance);
         updateNearestEnemies(position, direction);
     }
 
@@ -121,7 +140,7 @@ public class NearestEnemySpherical
         currentDirection = direction;
 
         // Search for all enemies in a sphere around the weapon
-        enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z) * range, range, enemyMask);
+        enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z) * sphereRangeToCenter, sphereRadius, enemyMask);
         enemiesLength = enemies.Length;
 
         result.Clear();
@@ -257,7 +276,7 @@ public class NearestEnemySpherical
     {
         // Sphere
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(currentPosition + currentDirection * range, range);
+        Gizmos.DrawWireSphere(currentPosition + currentDirection * sphereRangeToCenter, sphereRadius);
 
         // Local Z-Axis (View-Axis)
         Gizmos.color = Color.blue;
