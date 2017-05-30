@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8decc0fd57f01a54c9f54b7dbaf94407, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosion: {fileID: 1474367629021338, guid: ac40fba47c1c1e446be5b35cb4041ec7, type: 2}
+  explosion: {fileID: 1175403294100498, guid: cde8eea32af029a4e9a916e4addfb573, type: 2}
   onTrigger: 1
 --- !u!135 &135148259199206178
 SphereCollider:
