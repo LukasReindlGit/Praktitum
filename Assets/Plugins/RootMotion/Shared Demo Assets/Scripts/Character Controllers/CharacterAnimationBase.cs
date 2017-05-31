@@ -11,13 +11,13 @@ namespace RootMotion.Demos {
 		public bool smoothFollow = true;
 		public float smoothFollowSpeed = 20f;
 
-		private Vector3 lastPosition;
-		private Vector3 localPosition;
-		private Quaternion localRotation;
-		private Quaternion lastRotation;
+        private Vector3 lastPosition;
+        private Vector3 localPosition;
+        private Quaternion localRotation;
+        private Quaternion lastRotation;
 
-		// Gets the rotation pivot of the character
-		public virtual Vector3 GetPivotPoint() {
+        // Gets the rotation pivot of the character
+        public virtual Vector3 GetPivotPoint() {
 			return transform.position;
 		}
 

@@ -19,6 +19,7 @@ interface ICharacterAnimationDataProvider {
     /// <returns>Current movement vector in 3D space as direction in world space (w==0) or point in world space (w==1)</returns>
     Vector4 MovementVectorUpdate();
 
+
     /// <summary>
     /// Provide the calculation to return the current attention vector in 3D space as direction in world space (w==0) or point in world space (w==1).
     /// </summary>

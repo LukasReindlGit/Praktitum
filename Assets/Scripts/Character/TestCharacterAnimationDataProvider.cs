@@ -15,7 +15,7 @@ public class TestCharacterAnimationDataProvider : MonoBehaviour, ICharacterAnima
 	
 	// Update is called once per frame
 	void Update () {
-        Debug.Log("Default: " + default(Vector4));
+
 	}
 
     public CharacterAnimationManagerConfiguration GetCurrentCharacterAnimationManagerConfiguration()
@@ -25,14 +25,16 @@ public class TestCharacterAnimationDataProvider : MonoBehaviour, ICharacterAnima
 
 
     public Vector4 MovementVectorUpdate() {
-
-        return default(Vector4);
+        var tempVector = new Vector3(Input.GetAxis("Horizontal2"), 0, Input.GetAxis("Vertical2"));
+        Debug.Log("Movement: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
+        return new Vector4(tempVector.x, tempVector.y, tempVector.z, 0);
     }
 
     public Vector4 AttentionVectorVectorUpdate()
     {
-
-        return default(Vector4);
+        var tempVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        //Debug.Log("Attention: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
+        return new Vector4(tempVector.x, tempVector.y, tempVector.z, 0);
     }
 
     public Vector4 LookVectorUpdate()
