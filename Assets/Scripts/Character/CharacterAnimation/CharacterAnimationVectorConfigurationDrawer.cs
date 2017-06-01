@@ -33,6 +33,10 @@ public class CharacterAnimationVectorConfigurationDrawer : QPropertyDrawer
         // Set anchor rect
         //anchorRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
 
+        var tempGUIStyle = new GUIStyle();
+        GUI.backgroundColor = new Color(255, 149, 0, 255);
+        tempGUIStyle.normal.textColor = new Color(255, 149, 0, 255);
+
         PropertyFieldLine(property.FindPropertyRelative("vectorBehaviour"));
 
 
