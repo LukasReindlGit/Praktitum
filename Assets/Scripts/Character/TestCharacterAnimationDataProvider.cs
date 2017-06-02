@@ -32,8 +32,8 @@ public class TestCharacterAnimationDataProvider : MonoBehaviour, ICharacterAnima
 
     public Vector4 AttentionVectorVectorUpdate()
     {
-        var tempVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        //Debug.Log("Attention: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
+        var tempVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
+        Debug.Log("Attention: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
         return new Vector4(tempVector.x, tempVector.y, tempVector.z, 0);
     }
 
