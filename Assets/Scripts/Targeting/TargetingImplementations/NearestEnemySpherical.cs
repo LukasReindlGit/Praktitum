@@ -154,7 +154,7 @@ public class NearestEnemySpherical
         }
 
         // Orders enemies from nearest to farthest
-        result.Sort((a, b) => {
+        result.Sort(delegate (GameObject a, GameObject b) {
             distanceToA = (a.transform.position - position).sqrMagnitude;
             distanceToB = (b.transform.position - position).sqrMagnitude;
             if (distanceToA > distanceToB)

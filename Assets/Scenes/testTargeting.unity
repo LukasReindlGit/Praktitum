@@ -429,7 +429,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 360143392}
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: -0.53, y: 0, z: 0}
+  m_LocalPosition: {x: -0.53, y: -0.144, z: 0}
   m_LocalScale: {x: 0.44820362, y: 0.34730235, z: 0.025445605}
   m_Children: []
   m_Father: {fileID: 1507032052}
@@ -446,6 +446,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a144e0e71bdd4c44daa749e4aaff9ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  critical: 0
+  shootableDegree: 90
 --- !u!23 &360143395
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -857,6 +859,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a144e0e71bdd4c44daa749e4aaff9ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  critical: 1
+  shootableDegree: 90
 --- !u!23 &608091718
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2032,6 +2036,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a144e0e71bdd4c44daa749e4aaff9ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  critical: 0
+  shootableDegree: 90
 --- !u!23 &1716022322
 MeshRenderer:
   m_ObjectHideFlags: 0
