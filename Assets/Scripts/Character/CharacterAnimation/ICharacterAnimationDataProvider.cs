@@ -11,7 +11,7 @@ interface ICharacterAnimationDataProvider {
     /// Provide a reference to the CharacterAnimationManagerConfiguration for this character.
     /// </summary>
     /// <returns></returns>
-    CharacterAnimationManagerConfiguration GetCurrentCharacterAnimationManagerConfiguration();
+    CharacterAnimationDirectionConfiguration GetCurrentCharacterAnimationManagerConfiguration();
 
     /// <summary>
     /// Provide the calculation to return the current movement vector in 3D space as direction in world space (w==0) or point in world space (w==1).

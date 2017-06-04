@@ -29,7 +29,9 @@ public class QDivider : PropertyAttribute
 		this.subtitle = null;
 	}
 
-	public QDivider()
+
+
+    public QDivider()
 	{
 		this.header = null;
 		this.subtitle = null;

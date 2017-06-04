@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterAnimationManagerConfiguration))]
+[RequireComponent(typeof(CharacterAnimationDirectionConfiguration))]
 public class TestCharacterAnimationDataProvider : MonoBehaviour, ICharacterAnimationDataProvider
 {
 
@@ -18,22 +18,22 @@ public class TestCharacterAnimationDataProvider : MonoBehaviour, ICharacterAnima
 
 	}
 
-    public CharacterAnimationManagerConfiguration GetCurrentCharacterAnimationManagerConfiguration()
+    public CharacterAnimationDirectionConfiguration GetCurrentCharacterAnimationManagerConfiguration()
     {
-        return this.GetComponent<CharacterAnimationManagerConfiguration>();
+        return this.GetComponent<CharacterAnimationDirectionConfiguration>();
     }
 
 
     public Vector4 MovementVectorUpdate() {
         var tempVector = new Vector3(Input.GetAxis("Horizontal2"), 0, Input.GetAxis("Vertical2"));
-        Debug.Log("Movement: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
+        //Debug.Log("Movement: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
         return new Vector4(tempVector.x, tempVector.y, tempVector.z, 0);
     }
 
     public Vector4 AttentionVectorVectorUpdate()
     {
         var tempVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
-        Debug.Log("Attention: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
+        //Debug.Log("Attention: " + new Vector4(tempVector.x, tempVector.y, tempVector.z, 0));
         return new Vector4(tempVector.x, tempVector.y, tempVector.z, 0);
     }
 

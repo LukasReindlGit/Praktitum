@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+[RequireComponent(typeof(CharacterAnimationManagerConfiguration))]
 public abstract class CharacterAnimationManager : MonoBehaviour {
 
-    private CharacterAnimationManagerConfiguration m_CAMC;
-    protected CharacterAnimationManagerConfiguration _CAMC
+    private CharacterAnimationManagerConfiguration m_configuration;
+    public CharacterAnimationManagerConfiguration configuration
     {
         get
         {
-            return this.m_CAMC;
+            return this.m_configuration;
         }
 
-        set
+        protected set
         {
-            m_CAMC = value;
+            m_configuration = value;
             Initialize();
         }
     }
@@ -29,71 +30,66 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
 
 
 
-    /// <summary>
-    /// Movement vector in 3D space. Always required. Zero vector is valid. Defines overall rotation of the character game object. The character is currently moving in the direction described by [x,y,z] (direction (if w==0) or a point (if w==0) in world space). 
-    /// </summary>
-    protected Vector4 fetchedMovementVector = default(Vector4);
-    protected Vector4 currentMovementVector = default(Vector4);
-    /// <summary>
-    /// Attention vector in 3D space. Always required. Zero vector is valid. The character's overall attention/ point of interest is in the direction described by [x,y,z] (direction (if w==0) or a point (if w==0) in world space).
-    /// </summary>
-    protected Vector4 fetchedAttentionVector = default(Vector4);
-    protected Vector4 currentAttentionVector = default(Vector4);
+    protected Dictionary<CharacterAnimationDirection.Type, CharacterAnimationDirection> directions = new Dictionary<CharacterAnimationDirection.Type, CharacterAnimationDirection>();
 
-    /// <summary>
-    /// Look vector in 3D space. Not always required. Zero vector is invalid --> Attention vector as default. The character's head or appropriate part of his body is facing towarts the direction described by [x,y,z] (direction (if w==0) or a point (if w==0) in world space).
-    /// </summary>
-    protected Vector4 fetchedLookVector = default(Vector4);
-    protected Vector4 currentLookVector = default(Vector4);
+    public Dictionary<CharacterAnimationDirectionBehaviour, CharacterAnimationDirectionFilter> filters = new Dictionary<CharacterAnimationDirectionBehaviour, CharacterAnimationDirectionFilter>();
 
-    /// <summary>
-    /// Aim vector in 3D space. Not always required. Zero vector is invalid --> Attention vector as default. The character is currently aiming in the direction described by [x,y,z] (direction (if w==0) or a point (if w==0) in world space).
-    /// </summary>
-    protected Vector4 fetchedAimVector = default(Vector4);
-    protected Vector4 currentAimVector = default(Vector4);
 
-    /// <summary>
-    /// Movement vector in 3D space.  Not always required. Zero vector is invalid --> TorsoBehaviour defines default. The character's torso is currently facing in the direction described by [x,y,z] (direction (if w==0) or a point (if w==0) in world space).
-    /// </summary>
-    protected Vector4 fetchedBodyVector = default(Vector4);
-    private Vector4 m_CurrentBodyVector = default(Vector4);
-    protected Vector4 currentBodyVector {
+    public Vector4 GetAnimationDirectionCurrentDirection(CharacterAnimationDirection.Type type)
+    {
+        return directions[type].currentDirection;
+    }
 
-        get {
+    public Vector4 GetAnimationDirectionForFilters(CharacterAnimationDirection.Type type)
+    {
+        return directions[type].candidateDirection;
+    }
 
-            return m_CurrentBodyVector;
-        }
+    // GIZMO Stuff:
 
-        set {
-            bodyAngularDeltaThresholdTimer = 0.0f;
-            m_CurrentBodyVector = value;
+    private Dictionary<CharacterAnimationDirection.Type, string> gizmoPaths = new Dictionary<CharacterAnimationDirection.Type, string>()
+    {
+        { CharacterAnimationDirection.Type.Attention, "CharacterAnimationManager/Attention"},
+        { CharacterAnimationDirection.Type.Movement, "CharacterAnimationManager/Movement"},
+        { CharacterAnimationDirection.Type.Aim, "CharacterAnimationManager/Target"},
+        { CharacterAnimationDirection.Type.Look, "CharacterAnimationManager/Look"},
+        { CharacterAnimationDirection.Type.Body, "CharacterAnimationManager/Body"},
 
-        }
-    } 
-    protected float bodyAngularDeltaThresholdTimer = 0;
-    
+    };
+    private Dictionary<CharacterAnimationDirection.Type, float> gizmoDistances = new Dictionary<CharacterAnimationDirection.Type, float>()
+          {
+        { CharacterAnimationDirection.Type.Attention, 5.0f },
+        { CharacterAnimationDirection.Type.Movement, 4.0f },
+        { CharacterAnimationDirection.Type.Aim, 3.0f},
+        { CharacterAnimationDirection.Type.Look, 2.0f},
+        { CharacterAnimationDirection.Type.Body, 1.0f},
 
-    private Vector3 lastPosition;
-    private Vector3 localPosition;
-    private Quaternion localRotation;
-    private Quaternion lastRotation;
+    };
+
+    private float gizmosVerticalOffset = 1.0f;
+
 
     /// <summary>
     /// Initialize the CharacterAnimationManager. 
     /// </summary>
     protected virtual void Initialize()
     {
+        // Initialize animation vector dictionaries
+        for (int i = 0; i < Enum.GetValues(typeof(CharacterAnimationDirection.Type)).Length; i++)
+        {
+            directions.Add((CharacterAnimationDirection.Type)i, new CharacterAnimationDirection(this, (CharacterAnimationDirection.Type)i));
 
+        }
     }
 
     public void Awake()
     {
 
         animator = GetComponent<Animator>();
-        _CAMC = GetComponent<CharacterAnimationManagerConfiguration>();
+        configuration = GetComponent<CharacterAnimationManagerConfiguration>();
 
         var tempComponents = GetComponents(typeof(Component));
-        for(int i = 0; i < tempComponents.Length; i++)
+        for (int i = 0; i < tempComponents.Length; i++)
         {
             if (tempComponents[i] is ICharacterAnimationDataProvider)
             {
@@ -102,7 +98,72 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
 
             }
         }
+
+        InitializeAllFilters();
     }
+
+    public void InitializeAllFilters()
+    {
+        InitializeFiltersFromDirectionConfiguration(configuration.movementDirectionConfiguration);
+
+        InitializeFiltersFromDirectionConfiguration(configuration.attentionDirectionrConfiguration);
+
+        InitializeFiltersFromDirectionConfiguration(configuration.lookDirectionConfiguration);
+
+        InitializeFiltersFromDirectionConfiguration(configuration.aimDirectionConfiguration);
+
+        InitializeFiltersFromDirectionConfiguration(configuration.bodyDirectionConfiguration);
+
+
+
+    }
+    public void InitializeFiltersFromDirectionConfiguration( CharacterAnimationDirectionConfiguration configuration)
+    {
+
+        for (int i = 0; i < configuration.normalVectorBehaviour.Count; i++)
+        {
+            var tempBehaviour = configuration.normalVectorBehaviour[i];
+            filters.Add(tempBehaviour, new CharacterAnimationDirectionFilter(tempBehaviour.filter, configuration.normalVector,this,tempBehaviour.averageTime));
+            
+
+        }
+
+        for (int i = 0; i < configuration.fallbackVectorBehaviour.Count; i++)
+        {
+            var tempBehaviour = configuration.fallbackVectorBehaviour[i];
+            filters.Add(tempBehaviour, new CharacterAnimationDirectionFilter(tempBehaviour.filter, configuration.fallbackVector, this, tempBehaviour.averageTime));
+
+        }
+    }
+
+    public void UpdateAllFilters()
+    {
+
+        foreach (CharacterAnimationDirectionBehaviour key in filters.Keys)
+        {
+            filters[key].UpdateValuesInFixedUpdate();
+        }
+
+
+    }
+
+    private void OnDrawGizmos()
+    {
+        foreach(CharacterAnimationDirection.Type key in Enum.GetValues(typeof(CharacterAnimationDirection.Type)))
+        {
+            if (directions.ContainsKey(key))
+            {
+                Gizmos.DrawIcon(directions[key].currentDirection * gizmoDistances[key] + new Vector4(0, gizmosVerticalOffset,0,0), gizmoPaths[key]);
+            }else
+            {
+                Gizmos.DrawIcon(transform.forward * gizmoDistances[key] + new Vector3(0, gizmosVerticalOffset, 0), gizmoPaths[key]);
+
+            }
+        }
+       
+    }
+
+
 
     // Gets angle around y axis from a world space direction
     public float GetAngleFromForward(Vector3 worldDirection)
@@ -112,71 +173,53 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
     }
 
     /// Gets angle around y axis from a world space direction
-    protected float GetSignedAngle(Vector3 forwardA, Vector3 forwardB)
-    {
-        // get a numeric angle for each vector, on the X-Z plane (relative to world forward)
-        var angleA = Mathf.Atan2(forwardA.x, forwardA.z) * Mathf.Rad2Deg;
-        var angleB = Mathf.Atan2(forwardB.x, forwardB.z) * Mathf.Rad2Deg;
-
-        // get the signed difference in these angles
-        
-        return Mathf.DeltaAngle(angleA, angleB);
-    }
-
-    //protected float GetSignedAngularDelta(Vector3 forwardA, Vector3 forwardB, float turnSensitivity)
-    //{
-    //    float angle = GetSignedAngle(forwardA, forwardB);
-    //    angle *= turnSensitivity * 0.01f;
-    //    angle = Mathf.Clamp(angle / Time.deltaTime, -1f, 1f);
-
-    //    return angle;
-    //}
 
 
 
-    private void FetchCurrentData()
+
+    private void FetchAnimationVectorData()
     {
 
-        fetchedMovementVector = RemasterDirection(crntCADP.MovementVectorUpdate());
+        directions[CharacterAnimationDirection.Type.Movement].fetchedDirection = crntCADP.MovementVectorUpdate();
 
-        fetchedAttentionVector = RemasterDirection(crntCADP.AttentionVectorVectorUpdate());
+        directions[CharacterAnimationDirection.Type.Attention].fetchedDirection = crntCADP.AttentionVectorVectorUpdate();
 
-        fetchedLookVector = RemasterDirection(crntCADP.LookVectorUpdate());
+        directions[CharacterAnimationDirection.Type.Look].fetchedDirection = crntCADP.LookVectorUpdate();
 
-        fetchedAimVector = RemasterDirection(crntCADP.AimVectorUpdate());
+        directions[CharacterAnimationDirection.Type.Aim].fetchedDirection = crntCADP.AimVectorUpdate();
 
         // ToDo: This is only for debug purposes
         //fetchedBodyVector = fetchedAttentionVector;
     }
 
-    /// <summary>
-    /// Returns a normalized direction vector from the transform center towards vector.
-    /// </summary>
-    /// <param name="vector"></param>
-    /// <returns></returns>
-    private Vector4 RemasterDirection(Vector4 vector)
+
+
+    protected virtual void ApplyCurrentAnimationVectors()
     {
-        // is default
-        if (vector == default(Vector4))
-        {
-            return default(Vector4);
-        }
+        ApplyMovementVector();
 
-        // is direction already
-        if(vector.w == 0)
-        {
-            return vector.normalized;
-        }
+        ApplyAttentionVector();
 
-        // is point
-        vector /= vector.w;
-        return (transform.position - (Vector3)vector).normalized;
+        ApplyBodyVector();
+
+        ApplyAimVector();
+
+        ApplyLookVector();
 
     }
 
-    protected virtual void UpdateAnimationController()
+    protected virtual void UpdateCurrentAnimationVectors()
     {
         
+        CalculateMovementVector();
+
+        CalculateAttentionVector();
+
+        CalculateBodyVector();
+
+        CalculateAimVector();
+
+        CalculateLookVector();
     }
 
     protected virtual void Update()
@@ -187,30 +230,61 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
             return;
         }
 
-        FetchCurrentData();
+        FetchAnimationVectorData();
 
-        UpdateAnimationController();
+        UpdateCurrentAnimationVectors();
+
+        ApplyCurrentAnimationVectors();
+    }
+
+    private void FixedUpdate()
+    {
+        UpdateAllFilters();
     }
 
 
 
-    protected abstract void CalculateMovementVector();
+
+
+
+    protected void CalculateMovementVector() {
+        directions[CharacterAnimationDirection.Type.Movement].CalculateCandidate();
+        directions[CharacterAnimationDirection.Type.Movement].CalculateTarget();
+        directions[CharacterAnimationDirection.Type.Movement].UpdateCurrentVector();
+
+    }
 
     protected abstract void ApplyMovementVector();
 
-    protected abstract void CalculateAttentionVector();
+    protected  void CalculateAttentionVector() {
+        directions[CharacterAnimationDirection.Type.Attention].CalculateCandidate();
+        directions[CharacterAnimationDirection.Type.Attention].CalculateTarget();
+        directions[CharacterAnimationDirection.Type.Attention].UpdateCurrentVector();
+    }
 
     protected abstract void ApplyAttentionVector();
 
-    protected abstract void CalculateBodyVector();
+    protected  void CalculateBodyVector() {
+        directions[CharacterAnimationDirection.Type.Body].CalculateCandidate();
+        directions[CharacterAnimationDirection.Type.Body].CalculateTarget();
+        directions[CharacterAnimationDirection.Type.Body].UpdateCurrentVector();
+    }
 
     protected abstract void ApplyBodyVector();
 
-    protected abstract void CalculateAimVector();
+    protected  void CalculateAimVector() {
+        directions[CharacterAnimationDirection.Type.Aim].CalculateCandidate();
+        directions[CharacterAnimationDirection.Type.Aim].CalculateTarget();
+        directions[CharacterAnimationDirection.Type.Aim].UpdateCurrentVector();
+    }
 
     protected abstract void ApplyAimVector();
 
-    protected abstract void CalculateLookVector();
+    protected  void CalculateLookVector() {
+        directions[CharacterAnimationDirection.Type.Look].CalculateCandidate();
+        directions[CharacterAnimationDirection.Type.Look].CalculateTarget();
+        directions[CharacterAnimationDirection.Type.Look].UpdateCurrentVector();
+    }
 
     protected abstract void ApplyLookVector();
 
@@ -230,3 +304,4 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
 
 
 }
+
