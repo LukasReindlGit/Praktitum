@@ -20,40 +20,41 @@ public class CharacterAnimationDirectionBehaviour {
 
     // [QTitle("WHICH")]
 
-    //[BoxGroup("Condition",true)]
+    [BoxGroup("Behavioural Trehshold")]
     public Condition condition;
 
-    //[BoxGroup("Condition", true)]
-
-    [Indent(1)]
+    [BoxGroup("Behavioural Trehshold")]
+    [Indent(2)]
     [ShowIf("ShowConditionValue")]
     public float conditionValue;
 
-    //[BoxGroup("Filter", true)]
 
+    [BoxGroup("Behavioural Trehshold")]
     [Indent(0)]
     [OnValueChanged("UpdateFilterValues")]
     public CharacterAnimationDirectionFilter.Filter filter;
 
-    //[BoxGroup("Filter", true)]
-    [Indent(1)]
+    [BoxGroup("Behavioural Trehshold")]
+    [Indent(2)]
     [ShowIf("ShowAverageTime")]
     [OnValueChanged("UpdateFilterValues")]
     public float averageTime;
 
-
-    //[BoxGroup("Transition", true)]
+    [BoxGroup("Behavioural Trehshold")]
     [Indent(0)]
     public Transition transition;
 
     [HideInInspector]
     public TransitionFunction transitionFunction = new TransitionFunction();
 
-    [Indent(1)]
+    [BoxGroup("Behavioural Trehshold")]
+    [Indent(2)]
     [ShowIf("ShowTransitionFunction")]
     [OnValueChanged("UpdateTransitionValues")]
     public TransitionFunction.Type transitionType;
 
+    [BoxGroup("Behavioural Trehshold")]
+    [Indent(2)]
     [ShowIf("ShowTransitionFunction")]
     public float transitionSpeed;
 

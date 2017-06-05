@@ -2,9 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Sirenix.OdinInspector;
 
 [RequireComponent(typeof(CharacterAnimationManagerConfiguration))]
 public abstract class CharacterAnimationManager : MonoBehaviour {
+
+    [ValueDropdown("GizmoValueDropdown")]
+    public int drawGizmo;
+
+    private ValueDropdownList<int> GizmoValueDropdown = new ValueDropdownList<int>()
+    {
+        {"Always", 2 },
+        {"Selected",    1    },
+        {"Never",      0     }
+    };
 
     private CharacterAnimationManagerConfiguration m_configuration;
     public CharacterAnimationManagerConfiguration configuration
@@ -57,7 +68,7 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
 
     };
     private Dictionary<CharacterAnimationDirection.Type, float> gizmoDistances = new Dictionary<CharacterAnimationDirection.Type, float>()
-          {
+    {
         { CharacterAnimationDirection.Type.Attention, 5.0f },
         { CharacterAnimationDirection.Type.Movement, 4.0f },
         { CharacterAnimationDirection.Type.Aim, 3.0f},
@@ -147,20 +158,40 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
 
     }
 
+
+    private void OnDrawGizmosSelected()
+    {
+        if (drawGizmo == 1)
+        {
+            DrawDirectionGizmos();
+        }
+
+    }
+
     private void OnDrawGizmos()
     {
-        foreach(CharacterAnimationDirection.Type key in Enum.GetValues(typeof(CharacterAnimationDirection.Type)))
+     if(drawGizmo == 2)
+        {
+            DrawDirectionGizmos();
+        }
+       
+    }
+
+
+    private void DrawDirectionGizmos()
+    {
+        foreach (CharacterAnimationDirection.Type key in Enum.GetValues(typeof(CharacterAnimationDirection.Type)))
         {
             if (directions.ContainsKey(key))
             {
-                Gizmos.DrawIcon(directions[key].currentDirection * gizmoDistances[key] + new Vector4(0, gizmosVerticalOffset,0,0), gizmoPaths[key]);
-            }else
+                Gizmos.DrawIcon(transform.position + (Vector3)directions[key].currentDirection * gizmoDistances[key] + new Vector3(0, gizmosVerticalOffset, 0), gizmoPaths[key]);
+            }
+            else
             {
-                Gizmos.DrawIcon(transform.forward * gizmoDistances[key] + new Vector3(0, gizmosVerticalOffset, 0), gizmoPaths[key]);
+                Gizmos.DrawIcon(transform.position + transform.forward * gizmoDistances[key] + new Vector3(0, gizmosVerticalOffset, 0), gizmoPaths[key]);
 
             }
         }
-       
     }
 
 

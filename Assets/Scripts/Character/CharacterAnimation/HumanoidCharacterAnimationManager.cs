@@ -8,7 +8,6 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
     public Transform AimTarget;
     public Transform AttentionTarget;
 
-
 	   
 
 
@@ -85,48 +84,96 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
     protected override void ApplyBodyVector()
     {
-       
 
-        if (Vector3.Angle(directions[CharacterAnimationDirection.Type.Body].currentDirection, transform.forward) > 1)
+        // Debug.Log("Body: " + directions[CharacterAnimationDirection.Type.Body].currentDirection);
+        var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
+        // transform.Rotate(transform.up, tempRotationAroundY);
+
+      
+
+        // Update Animator
+        var tempAngularDelta = tempRotationAroundY;
+        tempAngularDelta *= configuration.turnSensitivity * 0.01f;
+        tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
+        Debug.Log("TargetValue: " + tempAngularDelta);
+
+        if (Mathf.Abs(tempAngularDelta - animator.GetFloat("Turn")) > Time.deltaTime * configuration.turnSpeed)
         {
-
-            var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
-            transform.Rotate(transform.up, tempRotationAroundY);
-
-            // Update Animator
-            var tempAngularDelta = tempRotationAroundY;
-            tempAngularDelta *= configuration.turnSensitivity * 0.01f;
-            tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
             tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
-            animator.SetFloat("Turn", tempAngularDelta);
 
-
-
-            //// Update transform
-            //var tempVector3 = Vector3.RotateTowards(transform.forward, currentBodyVector, Time.deltaTime * _CAMC.turnSpeed, 1);
-            //var tempRotationAroundY = GetAngleFromForward(tempVector3);
-            //transform.Rotate(transform.up, tempRotationAroundY);
-
-            //// Update Animator
-            //var tempAngularDelta = tempRotationAroundY;
-            //tempAngularDelta *= _CAMC.turnSensitivity * 0.01f;
-            //tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
-            //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * _CAMC.turnSpeed);
-            //animator.SetFloat("Turn", tempAngularDelta);
-
-            //// ToDo: Update Turn Animation Speed based on angular delta?
-        }
-        else
+        }else
         {
-            if (Mathf.Abs(animator.GetFloat("Turn")) > 0.05f)
-            {
-                animator.SetFloat("Turn", Mathf.Lerp(animator.GetFloat("Turn"), 0.0f, Time.deltaTime * configuration.turnSpeed));
+            tempAngularDelta = tempAngularDelta;
 
-            }else
-            {
-                animator.SetFloat("Turn", 0.0f);
-            }
         }
+
+
+        //var tempAngularDelta = directions[CharacterAnimationDirection.Type.Body].currentAngularDeltaCurrentToTarget;
+        //tempAngularDelta *= configuration.turnSensitivity * 0.01f;
+        //tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
+        //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
+
+        //animator.speed = 4.0f;
+
+
+        animator.SetFloat("Turn", tempAngularDelta);
+
+
+
+        //if (Vector3.Angle(directions[CharacterAnimationDirection.Type.Body].currentDirection, transform.forward) > 1)
+        //{
+        //    // Debug.Log("Body: " + directions[CharacterAnimationDirection.Type.Body].currentDirection);
+        //    var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
+        //   // transform.Rotate(transform.up, tempRotationAroundY);
+
+        //     Debug.Log("Rot around: " + tempRotationAroundY);
+
+        //    // Update Animator
+        //    var tempAngularDelta = tempRotationAroundY;
+        //    tempAngularDelta *= configuration.turnSensitivity * 0.01f;
+        //    tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
+        //    tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
+
+
+        //    //var tempAngularDelta = directions[CharacterAnimationDirection.Type.Body].currentAngularDeltaCurrentToTarget;
+        //    //tempAngularDelta *= configuration.turnSensitivity * 0.01f;
+        //    //tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
+        //    //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
+
+        //    //animator.speed = 4.0f;
+
+
+        //    animator.SetFloat("Turn", tempAngularDelta);
+
+
+
+        //    //// Update transform
+        //    //var tempVector3 = Vector3.RotateTowards(transform.forward, currentBodyVector, Time.deltaTime * _CAMC.turnSpeed, 1);
+        //    //var tempRotationAroundY = GetAngleFromForward(tempVector3);
+        //    //transform.Rotate(transform.up, tempRotationAroundY);
+
+        //    //// Update Animator
+        //    //var tempAngularDelta = tempRotationAroundY;
+        //    //tempAngularDelta *= _CAMC.turnSensitivity * 0.01f;
+        //    //tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
+        //    //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * _CAMC.turnSpeed);
+        //    //animator.SetFloat("Turn", tempAngularDelta);
+
+        //    //// ToDo: Update Turn Animation Speed based on angular delta?
+        //}
+        //else
+        //{
+        //    animator.speed = 1.0f;
+        //    if (Mathf.Abs(animator.GetFloat("Turn")) > 0.05f)
+        //    {
+        //        animator.SetFloat("Turn", Mathf.Lerp(animator.GetFloat("Turn"), 0.0f, Time.deltaTime * configuration.turnSpeed));
+
+        //    }
+        //    else
+        //    {
+        //        animator.SetFloat("Turn", 0.0f);
+        //    }
+        //}
     }
 
     //protected override void CalculateAimVector()

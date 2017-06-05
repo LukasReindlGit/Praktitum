@@ -84,6 +84,7 @@ public class CharacterAnimationDirection
 
     public CharacterAnimationDirectionConfiguration configuration;
 
+    public float currentAngularDeltaCurrentToTarget;
 
     public CharacterAnimationDirection(CharacterAnimationManager CAM, Type type)
     {
@@ -248,6 +249,7 @@ public class CharacterAnimationDirection
             //    Mathf.Lerp(currentDirection.y, targetDirection.y, tempBehaviour.transitionSpeed * Time.deltaTime), 
             //    Mathf.Lerp(currentDirection.z, targetDirection.z, tempBehaviour.transitionSpeed * Time.deltaTime),
             //    0);
+            var oldCurrent = currentDirection;
 
             currentDirection = new Vector4(
                 tempBehaviour.transitionFunction.calc(0, tempBehaviour.transitionSpeed * Time.deltaTime, currentDirection.x, targetDirection.x - currentDirection.x, 1),
@@ -255,6 +257,7 @@ public class CharacterAnimationDirection
                 tempBehaviour.transitionFunction.calc(0, tempBehaviour.transitionSpeed * Time.deltaTime, currentDirection.z, targetDirection.z - currentDirection.z, 1),
                 0);
 
+            currentAngularDeltaCurrentToTarget = Vector3.Angle(oldCurrent, currentDirection);
             //currentDirection = new Vector4(
             //    tempBehaviour.transitionFunction.calc(0, Mathf.Abs(targetDirection.x - currentDirection.x),0, targetDirection.x - currentDirection.x,180),
             //    tempBehaviour.transitionFunction.calc(0, Mathf.Abs(targetDirection.y - currentDirection.y), 0, targetDirection.y - currentDirection.y, 180),
