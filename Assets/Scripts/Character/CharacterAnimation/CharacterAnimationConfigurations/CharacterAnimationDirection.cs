@@ -44,7 +44,20 @@ public class CharacterAnimationDirection
             set
             {
                 m_targetDirection = GetDiretionFromCenter(value);
+            
+                initialCurrentToTargetAngularDelta = Vector3.Angle(currentDirection, targetDirection);
+            
+            var cross = Vector3.Cross(currentDirection, targetDirection);
+            if (cross.y < 0) {
+                initialCurrentToTargetAngularDelta = -initialCurrentToTargetAngularDelta;
             }
+
+            if (type == Type.Body)
+            {
+                Debug.Log("init: " + initialCurrentToTargetAngularDelta);
+
+            }
+        }
         }
 
     private Vector4 m_fetchedDirection = default(Vector4);
@@ -79,6 +92,10 @@ public class CharacterAnimationDirection
         }
     }
 
+    /// <summary>
+    /// Stores the angular delta when new target direction is set
+    /// </summary>
+    public float initialCurrentToTargetAngularDelta;
 
     private CharacterAnimationDirectionBehaviour currentBehaviour;
 
@@ -162,7 +179,7 @@ public class CharacterAnimationDirection
         }
         if (tempBehaviour == null)
         {
-            if (type == Type.Body) Debug.Log("Use default config settings");
+            if (type == Type.Body) { Debug.Log("Use default config settings"); }
             tempBehaviour = new List<CharacterAnimationDirectionBehaviour>();
             tempBehaviour.Add(new CharacterAnimationDirectionBehaviour());
 
@@ -174,8 +191,8 @@ public class CharacterAnimationDirection
             var filteredTarget = default(Vector3);
             if (tempBehaviour[i].filter != CharacterAnimationDirectionFilter.Filter.none)
             {
-                filteredTarget = CAM.filters[tempBehaviour[i]].GetFilteredDirection();
-
+                //filteredTarget = CAM.filters[tempBehaviour[i]].GetFilteredDirection();
+                filteredTarget = candidateDirection;
             }
             else
             {
@@ -239,7 +256,7 @@ public class CharacterAnimationDirection
         {
             if (type == Type.Body)
             {
-                Debug.Log("t: " + (Time.deltaTime * tempBehaviour.transitionSpeed) + " / b: " + currentDirection.x + " / c: " + (targetDirection.x - currentDirection.x) + " / d: " + ((targetDirection.x - currentDirection.x) / (Time.deltaTime * tempBehaviour.transitionSpeed)));
+                //Debug.Log("t: " + (Time.deltaTime * tempBehaviour.transitionSpeed) + " / b: " + currentDirection.x + " / c: " + (targetDirection.x - currentDirection.x) + " / d: " + ((targetDirection.x - currentDirection.x) / (Time.deltaTime * tempBehaviour.transitionSpeed)));
             }
             tempBehaviour.transitionFunction.type = tempBehaviour.transitionType;
 
@@ -265,7 +282,7 @@ public class CharacterAnimationDirection
             //    0);
             if (type == Type.Body)
             {
-                Debug.Log("Current: " + currentDirection);
+                //Debug.Log("Current: " + currentDirection);
             }
 
         }
