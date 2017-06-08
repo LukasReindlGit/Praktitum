@@ -23,9 +23,9 @@ public class HitScanTargeting : TargetingSystem
                                           );
     }
 
-    public override Target[] GetTargets(Vector3 direction, Parameters parameters)
+    public override Target[] GetTargets(Vector3 position, Vector3 direction, Parameters parameters)
     {
-        Target[] targets = new Target[parameters.SalveCount];
+        Target[] targets = new Target[(parameters.SalveCount > 0) ? parameters.SalveCount : 0];
         int length = targets.Length;
 
         target = system.getTargetEnemy();
@@ -34,9 +34,41 @@ public class HitScanTargeting : TargetingSystem
             return null;
         }
 
-        for (int i = 0; i < length; i++)
+        TargetPointManager targetPointManager = target.GetComponentInChildren<TargetPointManager>();
+        TargetPoint[] points = targetPointManager.getTargetPoints();
+        int crits = targetPointManager.getCriticalCount();
+        List<TargetPoint> copiedPoints = new List<TargetPoint>(points);
+        int lengthCopiedPoints;
+        
+        // Check if critical hit
+        if (UnityEngine.Random.value <= parameters.CriticalChance)
         {
-            targets[i] = new Target(target, Vector3.zero);
+            /*lengthCopiedPoints = crits;
+            copiedPoints = new TargetPoint[lengthCopiedPoints];
+            Array.Copy(points, copiedPoints, lengthCopiedPoints);*/
+            copiedPoints.RemoveRange(crits, copiedPoints.Count - crits);
+            while (copiedPoints.Count > 0)
+            {
+                int rnd = UnityEngine.Random.Range(0, copiedPoints.Count);
+                TargetPoint p = copiedPoints[rnd];
+                if (p.isInShootingAngle(position))
+                {
+                    targets[0] = new Target(p, p.getRandomHitPointOnSurface() - p.gameObject.transform.position);
+                    break;
+                }
+                copiedPoints.RemoveAt(rnd);
+            }
+        }
+        else
+        {
+            /*lengthCopiedPoints = points.Length - crits;
+            copiedPoints = new TargetPoint[lengthCopiedPoints];
+            Array.Copy(points, crits, copiedPoints, 0, lengthCopiedPoints);*/
+            copiedPoints.RemoveRange(0, crits);
+            while (copiedPoints.Count > 0)
+            {
+
+            }
         }
 
         return targets;

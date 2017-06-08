@@ -15,8 +15,14 @@ public class TargetPoint : MonoBehaviour {
     public float shootableAngle = 90;
 
 	private TargetPointManager manager;
-    private Vector3 shootDirection;
-    private float angleOfShootDirection;
+
+    public void Start()
+    {
+        var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        a.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        for (int i = 0; i < 30; i++)
+            Instantiate(a, getRandomHitPointOnSurface(), Quaternion.identity);
+    }
 
     public void setTargetPointManager(TargetPointManager manager)
     {
@@ -36,7 +42,7 @@ public class TargetPoint : MonoBehaviour {
                 return transform.TransformPoint(Random.value - 0.5f, Random.value - 0.5f, 0);
             case PrimitiveTypes.circle:
                 Vector2 random = Random.insideUnitCircle;
-                return transform.TransformPoint(random.x, random.y, 0);
+                return transform.TransformPoint(Random.insideUnitSphere);
             default:
                 return transform.position;
         }
@@ -44,8 +50,6 @@ public class TargetPoint : MonoBehaviour {
 
     public bool isInShootingAngle(Vector3 posWeapon)
     {
-        shootDirection = transform.position - posWeapon;
-        angleOfShootDirection = Vector3.Angle(shootDirection, transform.forward);
-        return (angleOfShootDirection <= shootableAngle);
+        return (Vector3.Angle(transform.position - posWeapon, transform.forward) <= shootableAngle);
     }
 }

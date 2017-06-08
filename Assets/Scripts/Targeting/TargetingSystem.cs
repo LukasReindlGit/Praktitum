@@ -8,6 +8,6 @@ public abstract class TargetingSystem {
 
     public abstract void UpdateTargetSystem(Vector3 position, Vector3 direction);
 
-    public abstract Target[] GetTargets(Vector3 direction, Parameters parameters);
+    public abstract Target[] GetTargets(Vector3 position, Vector3 direction, Parameters parameters);
     
 }

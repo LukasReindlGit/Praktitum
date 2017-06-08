@@ -141,7 +141,7 @@ public class NearestEnemySpherical
 
         // Search for all enemies in a sphere around the weapon
         enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z) * sphereRangeToCenter, sphereRadius, enemyMask);
-        enemiesLength = enemies.Length;
+        enemiesLength = (enemies != null) ? enemies.Length : 0;
 
         result.Clear();
         for (int i = 0; i < enemiesLength; i++)
@@ -239,7 +239,7 @@ public class NearestEnemySpherical
     /// <returns>The current target enemy in the sorted array of all seen enemies.</returns>
     public GameObject getTargetEnemy()
     {
-        return (sortedEnemies.Length > 0) ? sortedEnemies[0] : null;
+        return (sortedEnemies != null && sortedEnemies.Length > 0) ? sortedEnemies[0] : null;
     }
 
     /// <summary>
@@ -301,7 +301,7 @@ public class NearestEnemySpherical
         Gizmos.DrawLine(distPosNearLeft, distPosNearRight);
 
         // Mark enemies (green = target, red = other seen enemies)
-        int length = sortedEnemies.Length;
+        int length = (sortedEnemies != null) ? sortedEnemies.Length : 0;
         for (int i = 0; i < length; i++)
         {
             if (i != 0)
