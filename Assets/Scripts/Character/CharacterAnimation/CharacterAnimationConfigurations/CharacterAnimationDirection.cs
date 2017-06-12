@@ -146,14 +146,14 @@ public class CharacterAnimationDirection
         }
         else if (configuration.useFallbackDirection)
         {
-            if (configuration.directionState == CharacterAnimationDirectionConfiguration.fallbackDiretionRefState.current && CAM.GetAnimationDirectionCurrentDirection(configuration.fallbackVector) != default(Vector4))
+            if (configuration.onNewTargetReferenceDirectionState == CharacterAnimationDirectionConfiguration.fallbackDiretionRefState.current && CAM.GetAnimationDirectionCurrentDirection(configuration.fallbackVector) != default(Vector4))
             {
 
                 // Fallback
                 candidateDirection = CAM.GetAnimationDirectionCurrentDirection(configuration.fallbackVector);
                 state = State.fallback;
 
-            }else if (configuration.directionState == CharacterAnimationDirectionConfiguration.fallbackDiretionRefState.target &&  CAM.GetAnimationDirectionTargetDirection(configuration.fallbackVector) != default(Vector4))
+            }else if (configuration.onNewTargetReferenceDirectionState == CharacterAnimationDirectionConfiguration.fallbackDiretionRefState.target &&  CAM.GetAnimationDirectionTargetDirection(configuration.fallbackVector) != default(Vector4))
             {
 
                 // Fallback
@@ -169,9 +169,20 @@ public class CharacterAnimationDirection
             }
         }else
         {
+            if (configuration.resetTargetToCurrentOnDefaultInput)
+            {
+                // Use last valid curretnDirection
+                if(m_currentDirection != default(Vector4))
+                {
+                    targetDirection = m_currentDirection;
+
+                }
+            }
             candidateDirection = fetchedDirection;
             state = State.normal;
         }
+
+        
        
     }
 

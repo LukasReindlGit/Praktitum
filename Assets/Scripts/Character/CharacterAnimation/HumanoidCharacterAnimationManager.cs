@@ -16,9 +16,12 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
     public float normalMovementTransitionSpeed;
     public float stopMovingTransitionSpeed;
 
+    public float idleRotationErrorSolverSpeed;
+
     private Vector3 curretnAnimationDirectionTarget;
     private Quaternion oldRotation = new Quaternion();
 
+    static int moveState = Animator.StringToHash("Grounded Strafe (Move)");
     static int turnLeftState = Animator.StringToHash("TurnLeft");
     static int turnRightState = Animator.StringToHash("TurnRight");
     static int idleState = Animator.StringToHash("Idle");
@@ -105,8 +108,9 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
     protected override void ApplyBodyVector()
     {
+        var currentBaseState = animator.GetCurrentAnimatorStateInfo(0);
         animator.speed = 1.0f;
-        if (directions[CharacterAnimationDirection.Type.Movement].currentDirection == default(Vector4))
+        if (directions[CharacterAnimationDirection.Type.Movement].currentDirection == default(Vector4) )
         {
             // Debug.Log("Body: " + directions[CharacterAnimationDirection.Type.Body].currentDirection);
             var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
@@ -155,6 +159,7 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
             if (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta < 0 && curretnAnimationDirectionTarget != (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection)
             {
+                animator.speed = 1.7f;
                 animator.SetBool("TurnLeft", true);
                 animator.SetBool("TurnRight", false);
                 curretnAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
@@ -162,6 +167,7 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
             if (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta > 0 && curretnAnimationDirectionTarget != (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection)
             {
+                animator.speed = 1.7f;
                 animator.SetBool("TurnLeft", false);
                 animator.SetBool("TurnRight", true);
                 curretnAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
@@ -184,14 +190,20 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
 
         }
-        else
-        {
+        //else
+        //{
 
-            // is Moving
+        //    // is Moving
+        //    var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
+        //    transform.Rotate(transform.up, tempRotationAroundY);
+
+
+        //}
+
+        if( currentBaseState.shortNameHash == moveState)
+        {
             var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
             transform.Rotate(transform.up, tempRotationAroundY);
-
-
         }
 
 
@@ -290,7 +302,7 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
 
         // IS NOT MOVING --> Stretching the Animation rotation
-        if (directions[CharacterAnimationDirection.Type.Movement].currentDirection == default(Vector4))
+        if (directions[CharacterAnimationDirection.Type.Movement].currentDirection == default(Vector4) && currentBaseState.shortNameHash != moveState)
         {
 
 
@@ -337,7 +349,12 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
                 // Correction steps:
 
                 var rotationYCorrection = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].targetDirection);
-                MovementRef.rotation *= Quaternion.Euler(0, GetSignedAngle( rotationYCorrection), 0);
+                MovementRef.rotation *= Quaternion.Euler(0, GetSignedAngle( rotationYCorrection) * Time.deltaTime * idleRotationErrorSolverSpeed, 0);
+            }
+
+            if(currentBaseState.shortNameHash == turnLeftState || currentBaseState.shortNameHash == turnRightState)
+            {
+                directions[CharacterAnimationDirection.Type.Body].currentDirection = MovementRef.transform.forward;
             }
         }
 

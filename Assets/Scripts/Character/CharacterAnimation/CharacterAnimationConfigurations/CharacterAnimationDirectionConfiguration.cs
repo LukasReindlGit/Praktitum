@@ -8,9 +8,13 @@ public class CharacterAnimationDirectionConfiguration {
 
     private CharacterAnimationManagerConfiguration referenceManagerConfiguration;
 
+    
 
     [BoxGroup("NORMAL BEHAVIOUR")]
     public CharacterAnimationDirection.Type normalVector;
+
+    [BoxGroup("NORMAL BEHAVIOUR")]
+    public bool resetTargetToCurrentOnDefaultInput;
 
     [BoxGroup("NORMAL BEHAVIOUR")]
     public List<CharacterAnimationDirectionBehaviour> normalVectorBehaviour;
@@ -27,9 +31,9 @@ public class CharacterAnimationDirectionConfiguration {
 public enum fallbackDiretionRefState { current, target};
 
    
-   [EnableIf("useFallbackDirection")]
+    [EnableIf("useFallbackDirection")]
     [BoxGroup("FALLBACK BEHAVIOUR")]
-    public fallbackDiretionRefState directionState ;
+    public fallbackDiretionRefState onNewTargetReferenceDirectionState ;
 
 
        
