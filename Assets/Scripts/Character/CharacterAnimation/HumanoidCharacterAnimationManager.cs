@@ -262,9 +262,10 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
         // position.y = animator.nextPosition.y;
         MovementRef.position += position;
 
-      
 
 
+        var alreadyRotated = 0.0f;
+        var rotationFactor = 1.0f;
 
 
             var currentBaseState = animator.GetCurrentAnimatorStateInfo(0);
@@ -277,44 +278,66 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
             if (currentBaseState.shortNameHash == turnLeftState || currentBaseState.shortNameHash == turnRightState)
             {
-                Debug.Log("Do Stuff Here");
-                remainingDurationInSeconds *= currentBaseState.normalizedTime;
+             //   Debug.Log("Do Stuff Here");
+                remainingDurationInSeconds *= 1 - currentBaseState.normalizedTime;
             }
 
-
-            var anglePerSeconds = directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta / remainingDurationInSeconds;
+      //  Debug.Log("initialDelta: " + directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta);
+        rotationFactor = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta / turnAnimationAngularDelta);
+        var anglePerSeconds = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta - turnAnimationAngularDelta)/ remainingDurationInSeconds;
             //Debug.Log("crnt AngularDleta on target switch" + directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta);
             var angularDeltaThisFrame = anglePerSeconds * Time.deltaTime;
 
 
-        // IS NOT MOVING
+        // IS NOT MOVING --> Stretching the Animation rotation
         if (directions[CharacterAnimationDirection.Type.Movement].currentDirection == default(Vector4))
         {
 
-            //Debug.Log("realDurationInSeconds " + realDurationInSeconds + " / angelPerSeconds: " + anglePerSeconds + " / angularDeltaThisFrame: " + angularDeltaThisFrame);
+
+
+           // Debug.Log("realDurationInSeconds " + realDurationInSeconds + " / angelPerSeconds: " + anglePerSeconds + " / angularDeltaThisFrame: " + angularDeltaThisFrame);
             if (currentBaseState.shortNameHash == turnLeftState ||
                 currentBaseState.shortNameHash == turnRightState ||
                 //(currentBaseState.shortNameHash == idleState && currentBaseState.normalizedTime < 0.3f) ||
                 currentBaseState.shortNameHash == idleState && (nextStateBase.shortNameHash == turnLeftState || nextStateBase.shortNameHash == turnRightState))
             {
-                if (Mathf.Abs(GetSignedAngularDelta(Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection).eulerAngles.y)) >= Mathf.Abs(angularDeltaThisFrame))
-                {
-                    // Debug.Log("YES");
-                    MovementRef.rotation *= Quaternion.AngleAxis(angularDeltaThisFrame, Vector3.up);
-                }
-                else
-                {
-                    // Debug.Log("NO");
-                    MovementRef.rotation *= Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+               //Debug.Log("anim rot1 : " + animator.deltaRotation.eulerAngles + " / factor: "+rotationFactor);
+                // Apply Anim rotationw ith factor
+                var rotation = new Vector3(
+                    GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.x) * Mathf.Abs(rotationFactor)),
+                    GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.y) * Mathf.Abs(rotationFactor)),
+                    GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.z) * Mathf.Abs(rotationFactor)));
 
-                }
+
+                // Debug.Log("rot : " + rotation + " / factor: " + rotationFactor);
+                // position.y = animator.nextPosition.y;
+                MovementRef.rotation *= Quaternion.Euler(rotation.x, rotation.y, rotation.z);
+                
+
+
+                // Apply custom rotation linear
+                //if (Mathf.Abs(GetSignedAngularDelta(Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection).eulerAngles.y)) >= Mathf.Abs(angularDeltaThisFrame))
+                //{
+                //    // Debug.Log("YES");
+                //    MovementRef.rotation *= Quaternion.AngleAxis(angularDeltaThisFrame, Vector3.up);
+                //}
+                //else
+                //{
+                //    // Debug.Log("NO");
+                //    MovementRef.rotation *= Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+
+                //}
 
             }
             else
             {
                 // Debug.Log("NO");
-               // MovementRef.rotation *= Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+                // MovementRef.rotation *= Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection);
 
+                // Correction steps:
+
+                var rotationYCorrection = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].targetDirection);
+                MovementRef.rotation *= Quaternion.Euler(0, GetSignedAngle( rotationYCorrection), 0);
             }
         }
 
@@ -370,9 +393,10 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
     }
 
-    private float GetSignedAngularDelta(float rotation)
+    private float GetSignedAngle(float rotation)
     {
-        return (rotation > 180) ? rotation - 360 : rotation ;
+        rotation = rotation % 360;
+        return (rotation > 180) ? rotation - (360 ) : rotation ;
     }
 
     //protected override void CalculateAimVector()

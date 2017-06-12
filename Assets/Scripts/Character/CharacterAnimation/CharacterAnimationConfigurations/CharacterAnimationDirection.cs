@@ -45,12 +45,14 @@ public class CharacterAnimationDirection
             {
                 m_targetDirection = GetDiretionFromCenter(value);
             
-                initialCurrentToTargetAngularDelta = Vector3.Angle(currentDirection, targetDirection);
+                var tempVector = Vector3.Angle(currentDirection, m_targetDirection);
             
-            var cross = Vector3.Cross(currentDirection, targetDirection);
+            var cross = Vector3.Cross(currentDirection, m_targetDirection);
             if (cross.y < 0) {
-                initialCurrentToTargetAngularDelta = -initialCurrentToTargetAngularDelta;
+                tempVector = -tempVector;
             }
+
+            initialCurrentToTargetAngularDelta = tempVector;
 
             if (type == Type.Body)
             {
@@ -144,11 +146,18 @@ public class CharacterAnimationDirection
         }
         else if (configuration.useFallbackDirection)
         {
-            if (CAM.GetAnimationDirectionCurrentDirection(configuration.fallbackVector) != default(Vector4))
+            if (configuration.directionState == CharacterAnimationDirectionConfiguration.fallbackDiretionRefState.current && CAM.GetAnimationDirectionCurrentDirection(configuration.fallbackVector) != default(Vector4))
             {
 
                 // Fallback
                 candidateDirection = CAM.GetAnimationDirectionCurrentDirection(configuration.fallbackVector);
+                state = State.fallback;
+
+            }else if (configuration.directionState == CharacterAnimationDirectionConfiguration.fallbackDiretionRefState.target &&  CAM.GetAnimationDirectionTargetDirection(configuration.fallbackVector) != default(Vector4))
+            {
+
+                // Fallback
+                candidateDirection = CAM.GetAnimationDirectionTargetDirection(configuration.fallbackVector);
                 state = State.fallback;
 
             }
@@ -252,6 +261,10 @@ public class CharacterAnimationDirection
 
     private void TransitionStep(CharacterAnimationDirectionBehaviour tempBehaviour)
     {
+
+        var tempOldCurrentDirection = currentDirection;
+
+        // Calculate new 
         if(tempBehaviour.transition == CharacterAnimationDirectionBehaviour.Transition.byFunction)
         {
             if (type == Type.Body)
@@ -266,7 +279,7 @@ public class CharacterAnimationDirection
             //    Mathf.Lerp(currentDirection.y, targetDirection.y, tempBehaviour.transitionSpeed * Time.deltaTime), 
             //    Mathf.Lerp(currentDirection.z, targetDirection.z, tempBehaviour.transitionSpeed * Time.deltaTime),
             //    0);
-            var oldCurrent = currentDirection;
+            
 
             currentDirection = new Vector4(
                 tempBehaviour.transitionFunction.calc(0, tempBehaviour.transitionSpeed * Time.deltaTime, currentDirection.x, targetDirection.x - currentDirection.x, 1),
@@ -274,7 +287,7 @@ public class CharacterAnimationDirection
                 tempBehaviour.transitionFunction.calc(0, tempBehaviour.transitionSpeed * Time.deltaTime, currentDirection.z, targetDirection.z - currentDirection.z, 1),
                 0);
 
-            currentAngularDeltaCurrentToTarget = Vector3.Angle(oldCurrent, currentDirection);
+            currentAngularDeltaCurrentToTarget = Vector3.Angle(tempOldCurrentDirection, currentDirection);
             //currentDirection = new Vector4(
             //    tempBehaviour.transitionFunction.calc(0, Mathf.Abs(targetDirection.x - currentDirection.x),0, targetDirection.x - currentDirection.x,180),
             //    tempBehaviour.transitionFunction.calc(0, Mathf.Abs(targetDirection.y - currentDirection.y), 0, targetDirection.y - currentDirection.y, 180),
@@ -289,6 +302,56 @@ public class CharacterAnimationDirection
         else
         {
             currentDirection = targetDirection;
+        }
+
+        // Restrict
+        if (configuration.useRestrictiveSpeed)
+        {
+            if (tempOldCurrentDirection != default(Vector4))
+            {
+                if (Mathf.Abs(Vector3.Angle(tempOldCurrentDirection, currentDirection)) > configuration.maxAngularSpeed * Time.deltaTime)
+                {
+                    var sign = 1.0f;
+                    if (Vector3.Cross(tempOldCurrentDirection, currentDirection).y < 0)
+                    {
+                        sign = -1.0f;
+                    }
+                    Debug.Log("YEAH");
+                    currentDirection = Quaternion.AngleAxis(sign * configuration.maxAngularSpeed * Time.deltaTime, Vector3.up) * tempOldCurrentDirection;
+                    currentAngularDeltaCurrentToTarget = Vector3.Angle(tempOldCurrentDirection, currentDirection);
+
+                }
+            }
+        }
+
+        if (configuration.useRestrictiveDirection)
+        {
+            if (tempOldCurrentDirection != default(Vector4))
+            {
+
+                if(configuration.angularThreshold == 0)
+                {
+                    currentDirection = CAM.GetAnimationDirectionCurrentDirection(configuration.restrictiveDirection);
+                    currentAngularDeltaCurrentToTarget = Vector3.Angle(tempOldCurrentDirection, currentDirection);
+                }
+
+
+                if (Mathf.Abs(Vector3.Angle(CAM.GetAnimationDirectionCurrentDirection(configuration.restrictiveDirection), currentDirection)) > configuration.angularThreshold)
+                {
+                    var sign = 1.0f;
+                    if (Vector3.Cross(CAM.GetAnimationDirectionCurrentDirection(configuration.restrictiveDirection) , currentDirection).y < 0)
+                    {
+                        sign = -1.0f;
+                    }
+
+                    currentDirection = Quaternion.AngleAxis((-1 * sign * Mathf.Abs(Vector3.Angle(CAM.GetAnimationDirectionCurrentDirection(configuration.restrictiveDirection), currentDirection))) - (-1 * sign * configuration.angularThreshold), Vector3.up) * currentDirection;
+                    currentAngularDeltaCurrentToTarget = Vector3.Angle(tempOldCurrentDirection, currentDirection);
+
+                }
+            }else
+            {
+                Debug.Log("NOOOOPE");
+            }
         }
 
     }

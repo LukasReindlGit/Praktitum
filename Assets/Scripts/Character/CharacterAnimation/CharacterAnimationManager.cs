@@ -51,6 +51,11 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
         return directions[type].currentDirection;
     }
 
+    public Vector4 GetAnimationDirectionTargetDirection(CharacterAnimationDirection.Type type)
+    {
+        return directions[type].targetDirection;
+    }
+
     public Vector4 GetAnimationDirectionForFilters(CharacterAnimationDirection.Type type)
     {
         return directions[type].candidateDirection;
