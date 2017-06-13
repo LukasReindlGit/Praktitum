@@ -262,7 +262,7 @@ public class CharacterAnimationDirection
 
     public void UpdateCurrentVector()
     {
-
+       
         TransitionStep(currentBehaviour);
 
         // Transition
@@ -327,7 +327,7 @@ public class CharacterAnimationDirection
                     {
                         sign = -1.0f;
                     }
-                    Debug.Log("YEAH");
+                   
                     currentDirection = Quaternion.AngleAxis(sign * configuration.maxAngularSpeed * Time.deltaTime, Vector3.up) * tempOldCurrentDirection;
                     currentAngularDeltaCurrentToTarget = Vector3.Angle(tempOldCurrentDirection, currentDirection);
 

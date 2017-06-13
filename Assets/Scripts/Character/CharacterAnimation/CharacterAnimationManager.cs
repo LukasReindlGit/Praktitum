@@ -208,6 +208,13 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
         return Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg;
     }
 
+
+    public float GetAngleFromReferenceForward(Transform reference, Vector3 worldDirection)
+    {
+        Vector3 local = reference.InverseTransformDirection(worldDirection);
+        return Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg;
+    }
+
     /// Gets angle around y axis from a world space direction
 
 
@@ -300,7 +307,7 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
 
     protected abstract void ApplyAttentionVector();
 
-    protected  void CalculateBodyVector() {
+    protected virtual void CalculateBodyVector() {
         directions[CharacterAnimationDirection.Type.Body].CalculateCandidate();
         directions[CharacterAnimationDirection.Type.Body].CalculateTarget();
         directions[CharacterAnimationDirection.Type.Body].UpdateCurrentVector();
