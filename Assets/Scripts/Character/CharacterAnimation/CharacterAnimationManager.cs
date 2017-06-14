@@ -190,6 +190,13 @@ public abstract class CharacterAnimationManager : MonoBehaviour {
             if (directions.ContainsKey(key))
             {
                 Gizmos.DrawIcon(transform.position + (Vector3)directions[key].currentDirection * gizmoDistances[key] + new Vector3(0, gizmosVerticalOffset, 0), gizmoPaths[key]);
+
+                if(key == CharacterAnimationDirection.Type.Body)
+                {
+                    Gizmos.DrawIcon(transform.position + (Vector3)directions[key].targetDirection * gizmoDistances[key]*2 + new Vector3(0, gizmosVerticalOffset, 0), gizmoPaths[key]);
+
+                }
+
             }
             else
             {

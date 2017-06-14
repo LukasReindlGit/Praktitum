@@ -56,7 +56,7 @@ public class CharacterAnimationDirection
 
             if (type == Type.Body)
             {
-                Debug.Log("init: " + initialCurrentToTargetAngularDelta);
+                //Debug.Log("init: " + initialCurrentToTargetAngularDelta);
 
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
     public Transform MovementRef;
@@ -9,9 +10,13 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
     public Transform LookTarget;
     public Transform AimTarget;
     public Transform AttentionTarget;
+    
 
     public float turnAnimationDuration;
     public float turnAnimationAngularDelta;
+    public float turnAnimationSpeed;
+    [Range(0.0f, 1.0f)]
+    public float turnAnimationSecondUpdate;
 
     public float normalMovementTransitionSpeed;
     public float stopMovingTransitionSpeed;
@@ -20,7 +25,7 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
     public float movementTurnSpeed;
 
-    private Vector3 curretnAnimationDirectionTarget;
+    private Vector3 currentAnimationDirectionTarget;
     private Quaternion oldRotation = new Quaternion();
 
     static int moveState = Animator.StringToHash("Grounded Strafe (Move)");
@@ -29,11 +34,50 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
     static int idleState = Animator.StringToHash("Idle");
 
 
-    //protected override void CalculateMovementVector()
-    //{
-    //    currentMovementVector = fetchedMovementVector;
-    //}
+    private Coroutine m_TurnAnimationCoroutine;
+    /// <summary>
+    /// Referencing the current turn animation coroutine
+    /// </summary>
+    public Coroutine turnAnimationCoroutine
+    {
+        set
+        {
+            if (turnAnimationCoroutine != null)
+            {
+                StopCoroutine(m_TurnAnimationCoroutine);
+                animator.speed = 1.0f;
+            }
+            m_TurnAnimationCoroutine = value;
+        }
 
+        get
+        {
+            return m_TurnAnimationCoroutine;
+        }
+    }
+
+    private enum AnimatorStateInfoRef { current, next, both };
+
+    private enum TurnAnimationDirection { left, right};
+    private float realTurnAnimDuration;
+    private float remainingTurnAnimDuration;
+    private float turnAnimRotationFactor;
+    private float turnAnimAnglesPerSecond;
+    private float turnAnimAngularDeltaThisFrame;
+    private bool turnAnimationFinished;
+    private bool turnAnimationStarted;
+    private float rawAnimatorRootRotationThisAnimationPeriod;
+
+    private AnimatorStateInfo currentAnimatorBaseState;
+
+
+
+
+new private void Awake()
+    {
+        base.Awake();
+        currentAnimationDirectionTarget = transform.forward;
+    }
 
     protected override void ApplyMovementVector()
     {
@@ -80,155 +124,86 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
         animator.SetFloat("Right", right);
     }
 
-    //protected override void CalculateAttentionVector()
-    //{
-    //    if (fetchedAttentionVector != default(Vector4))
-    //    {
-    //        currentAttentionVector = fetchedAttentionVector;
-    //    }
-    //    else if(currentMovementVector != default(Vector4))
-    //    {
-    //        currentAttentionVector = currentMovementVector;
-    //    }else
-    //    {
-    //        // Nothing
-    //    }
-    //}
-
 
     protected override void ApplyAttentionVector()
     {
        
     }
 
-    //protected override void CalculateBodyVector()
-    //{
-    //    var tempAngle = GetSignedAngle(currentAttentionVector, currentBodyVector);
-
-    //    Debug.Log("Angle: " + tempAngle);
-
-    //    if (Mathf.Abs(tempAngle) >= _CAMC.bodyMaxAngularDelta)
-    //    {
-    //        currentBodyVector = currentAttentionVector;
-            
-    //    }else if (Mathf.Abs(tempAngle) >= _CAMC.bodyAngularDeltaTreshold)
-    //    {
-    //        bodyAngularDeltaThresholdTimer += Time.deltaTime;
-
-    //        if(bodyAngularDeltaThresholdTimer >= _CAMC.bodyAngularDeltaTresholdLatency)
-    //        {
-    //            currentBodyVector = currentAttentionVector;
-    //            bodyAngularDeltaThresholdTimer = 0.0f;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        bodyAngularDeltaThresholdTimer = 0.0f;
-    //    }
-
-       
-    //}
 
     protected override void ApplyBodyVector()
     {
         var currentBaseState = animator.GetCurrentAnimatorStateInfo(0);
-        animator.speed = 1.0f;
+        
         if (directions[CharacterAnimationDirection.Type.Movement].currentDirection == default(Vector4) )
         {
+
             // Debug.Log("Body: " + directions[CharacterAnimationDirection.Type.Body].currentDirection);
             var tempRotationAroundY = GetAngleFromReferenceForward(MovementRef.transform, directions[CharacterAnimationDirection.Type.Body].currentDirection);
-
-           
-
             // Update Animator
             var tempAngularDelta = tempRotationAroundY;
             tempAngularDelta *= configuration.turnSensitivity * 0.01f;
             tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
-            //Debug.Log("TargetValue: " + tempAngularDelta);
-
-            //if (Mathf.Abs(tempAngularDelta - animator.GetFloat("Turn")) > Time.deltaTime * configuration.turnSpeed)
-            //{
-
-            //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
-
-
-            //if (Mathf.Abs(tempAngularDelta - animator.GetFloat("Turn")) > Time.deltaTime * configuration.turnSpeed)
-            //{
-            //    tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
-
-            //}
-            //else
-            //{
-            //    tempAngularDelta = tempAngularDelta;
-
-            //}
-
-
-
-
-            //var tempAngularDelta = directions[CharacterAnimationDirection.Type.Body].currentAngularDeltaCurrentToTarget;
-            //tempAngularDelta *= configuration.turnSensitivity * 0.01f;
-            //tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
-            //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
-
-            //animator.speed = 4.0f;
-
-
+         
             animator.SetFloat("Turn", tempAngularDelta);
 
-            animator.SetBool("TurnRight", false);
-            animator.SetBool("TurnLeft", false);
 
 
-            if (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta < 0 && curretnAnimationDirectionTarget != (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection)
-            {
-                animator.speed = 1.7f;
-                animator.SetBool("TurnLeft", true);
-                animator.SetBool("TurnRight", false);
-                curretnAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
+
+            if (currentAnimationDirectionTarget != (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection && turnAnimationCoroutine == null) {
+
+                var cross = Vector3.Cross(currentAnimationDirectionTarget, (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection);
+                var angle = Vector3.Angle(currentAnimationDirectionTarget, (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection);
+                //Debug.Log("cross crnt anim target: "+ currentAnimationDirectionTarget +" / crnt target: "+ (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection);
+
+                if (angle > 3 && cross.y < 0) 
+                {
+                    turnAnimationCoroutine = StartCoroutine(TurnAnimation(TurnAnimationDirection.left));
+                    currentAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
+                }
+
+                if (angle > 3 && cross.y > 0 )
+                {
+                    turnAnimationCoroutine = StartCoroutine(TurnAnimation(TurnAnimationDirection.right));
+                    currentAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
+
+                }
             }
-
-            if (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta > 0 && curretnAnimationDirectionTarget != (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection)
-            {
-                animator.speed = 1.7f;
-                animator.SetBool("TurnLeft", false);
-                animator.SetBool("TurnRight", true);
-                curretnAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
-
-            }
-
-            //if (Vector3.Angle(directions[CharacterAnimationDirection.Type.Body].currentDirection, transform.forward) > 1)
+            //if (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta < 0 && curretnAnimationDirectionTarget != (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection)
             //{
-            if (Mathf.Abs(GetAngleFromReferenceForward(MovementRef.transform, directions[CharacterAnimationDirection.Type.Body].targetDirection)) > 2) { 
-                var tempSpeedFactor = Mathf.Abs(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) / turnAnimationAngularDelta;
-                var tempAmountFactor = Mathf.Abs(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) % turnAnimationAngularDelta;
+            //    animator.speed = 1.7f;
+            //    animator.SetBool("TurnLeft", true);
+            //    animator.SetBool("TurnRight", false);
+            //    curretnAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
+            //}
 
-                //Debug.Log("AngularDelta: " + directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta + " / SpeedFactor: " + tempSpeedFactor + " / Amount: " + (tempAmountFactor));
+            //if (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta > 0 && curretnAnimationDirectionTarget != (Vector3)directions[CharacterAnimationDirection.Type.Body].targetDirection)
+            //{
+            //    animator.speed = 1.7f;
+            //    animator.SetBool("TurnLeft", false);
+            //    animator.SetBool("TurnRight", true);
+            //    curretnAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].targetDirection;
 
-                //Debug.Log("Ausgleich: " + (Mathf.Sign(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) * tempAmountFactor));
-                //animator.speed = tempSpeedFactor;
-               // transform.Rotate(transform.up, (Mathf.Sign(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) * tempAmountFactor * (Time.deltaTime / (turnAnimationDuration * tempSpeedFactor))));
+            //}
 
-            }
+        
+            //if (Mathf.Abs(GetAngleFromReferenceForward(MovementRef.transform, directions[CharacterAnimationDirection.Type.Body].targetDirection)) > 2) { 
+            //    var tempSpeedFactor = Mathf.Abs(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) / turnAnimationAngularDelta;
+            //    var tempAmountFactor = Mathf.Abs(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) % turnAnimationAngularDelta;
+
+            
+            //}
 
 
         }
-        //else
-        //{
-
-        //    // is Moving
-        //    var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
-        //    transform.Rotate(transform.up, tempRotationAroundY);
-
-
-        //}
+   
 
         if( currentBaseState.shortNameHash == moveState && directions[CharacterAnimationDirection.Type.Movement].currentDirection != default(Vector4))
         {
             var tempRotationAroundY = GetAngleFromReferenceForward(MovementRef.transform, directions[CharacterAnimationDirection.Type.Body].targetDirection);
            Debug.Log("Rotate while moving:" + (MovementRef.transform.forward) + " / direction: " + directions[CharacterAnimationDirection.Type.Body].targetDirection);
             MovementRef.transform.Rotate(transform.up, tempRotationAroundY * Time.deltaTime * movementTurnSpeed);
-            Debug.Log("1");
+            Debug.Log("1.0");
 
         }else if(currentBaseState.shortNameHash == moveState)
         {
@@ -238,60 +213,7 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
         }
 
 
-        //if (Vector3.Angle(directions[CharacterAnimationDirection.Type.Body].currentDirection, transform.forward) > 1)
-        //{
-        //    // Debug.Log("Body: " + directions[CharacterAnimationDirection.Type.Body].currentDirection);
-        //    var tempRotationAroundY = GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].currentDirection);
-        //    transform.Rotate(transform.up, tempRotationAroundY);
-
-        //    Debug.Log("Rot around: " + tempRotationAroundY);
-
-        //    // Update Animator
-        //    var tempAngularDelta = tempRotationAroundY;
-        //    tempAngularDelta *= configuration.turnSensitivity * 0.01f;
-        //    tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
-        //    tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
-
-
-        //    //var tempAngularDelta = directions[CharacterAnimationDirection.Type.Body].currentAngularDeltaCurrentToTarget;
-        //    //tempAngularDelta *= configuration.turnSensitivity * 0.01f;
-        //    //tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
-        //    //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * configuration.turnSpeed);
-
-        //    //animator.speed = 4.0f;
-
-
-        //    animator.SetFloat("Turn", tempAngularDelta);
-
-
-
-        //    //// Update transform
-        //    //var tempVector3 = Vector3.RotateTowards(transform.forward, currentBodyVector, Time.deltaTime * _CAMC.turnSpeed, 1);
-        //    //var tempRotationAroundY = GetAngleFromForward(tempVector3);
-        //    //transform.Rotate(transform.up, tempRotationAroundY);
-
-        //    //// Update Animator
-        //    //var tempAngularDelta = tempRotationAroundY;
-        //    //tempAngularDelta *= _CAMC.turnSensitivity * 0.01f;
-        //    //tempAngularDelta = Mathf.Clamp(tempAngularDelta / Time.deltaTime, -1f, 1f);
-        //    //tempAngularDelta = Mathf.Lerp(animator.GetFloat("Turn"), tempAngularDelta, Time.deltaTime * _CAMC.turnSpeed);
-        //    //animator.SetFloat("Turn", tempAngularDelta);
-
-        //    //// ToDo: Update Turn Animation Speed based on angular delta?
-        //}
-        //else
-        //{
-        //    animator.speed = 1.0f;
-        //    if (Mathf.Abs(animator.GetFloat("Turn")) > 0.05f)
-        //    {
-        //        animator.SetFloat("Turn", Mathf.Lerp(animator.GetFloat("Turn"), 0.0f, Time.deltaTime * configuration.turnSpeed));
-
-        //    }
-        //    else
-        //    {
-        //        animator.SetFloat("Turn", 0.0f);
-        //    }
-        //}
+     
 
     }
 
@@ -301,6 +223,217 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
         directions[CharacterAnimationDirection.Type.Body].currentDirection = MovementRef.transform.forward;
     }
+
+   
+    IEnumerator TurnAnimation(TurnAnimationDirection turnAnimationDirection)
+    {
+        // Start 
+        Debug.Log("Start");
+
+        // Update animator properties
+        animator.speed = turnAnimationSpeed;
+        animator.SetBool("TurnLeft", turnAnimationDirection == TurnAnimationDirection.left);
+        animator.SetBool("TurnRight", turnAnimationDirection == TurnAnimationDirection.right);
+
+        // Init rotation properties
+        realTurnAnimDuration = animator.speed * turnAnimationDuration;
+
+        rawAnimatorRootRotationThisAnimationPeriod = 0.0f;
+
+        AnimatorStateInfo relevantAnimatorStateInfo;
+
+        // Wait for animator to detect setbool true 
+        // ToDo: or Timeout
+        while (!GetRelevantTurnAnimationAnimatorStateInfo(turnAnimationDirection, AnimatorStateInfoRef.both, out relevantAnimatorStateInfo))
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+
+        CalculateTurnAnimationRotationProperties();
+
+
+
+        var turnPropertiesAreUpdated = false;
+        // Update
+        while (TurnAnimationIsPalying(turnAnimationDirection, AnimatorStateInfoRef.both))
+        {
+
+            GetRelevantTurnAnimationAnimatorStateInfo(turnAnimationDirection, AnimatorStateInfoRef.both, out relevantAnimatorStateInfo);
+            Debug.Log("Start2");
+            if (TurnAnimationIsPalying(turnAnimationDirection, AnimatorStateInfoRef.current))
+            {
+                // Reset turn bools
+                animator.SetBool("TurnLeft", false);
+                animator.SetBool("TurnRight", false);
+            }
+
+            if ((relevantAnimatorStateInfo.normalizedTime -  (int)relevantAnimatorStateInfo.normalizedTime) >= turnAnimationSecondUpdate && !turnPropertiesAreUpdated)
+            {
+                Debug.Log("Update values at: "+relevantAnimatorStateInfo.normalizedTime);
+                UpdateTurnAnimationRotationPropertiesForSecondStep();
+                turnPropertiesAreUpdated = true;
+            }
+
+
+            // Update rotation properties each frame
+            remainingTurnAnimDuration = realTurnAnimDuration * (1 - relevantAnimatorStateInfo.normalizedTime);
+
+
+            // Rotate the character ( Stretching the Animation rotation )
+            Debug.Log("delta rotation this frame: " + GetSignedAngle(animator.deltaRotation.eulerAngles.y) + " / raw all: " + rawAnimatorRootRotationThisAnimationPeriod);
+            rawAnimatorRootRotationThisAnimationPeriod += GetSignedAngle( animator.deltaRotation.eulerAngles.y);
+
+            // Apply Anim rotation with factor
+            var rotation = new Vector3( GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.x) * Mathf.Abs(turnAnimRotationFactor)),
+                                        GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.y) * Mathf.Abs(turnAnimRotationFactor)),
+                                        GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.z) * Mathf.Abs(turnAnimRotationFactor)));
+
+            MovementRef.rotation *= Quaternion.Euler(rotation.x, rotation.y, rotation.z);
+
+
+
+            // Set correct current body direction
+            directions[CharacterAnimationDirection.Type.Body].currentDirection = MovementRef.transform.forward;
+
+
+
+            //animator.speed = 1.0f;
+
+            // ToDo break out
+            yield return new WaitForEndOfFrame();
+        }
+
+
+        // End
+        currentAnimationDirectionTarget = directions[CharacterAnimationDirection.Type.Body].currentDirection;
+       // directions[CharacterAnimationDirection.Type.Body].targetDirection = directions[CharacterAnimationDirection.Type.Body].currentDirection;
+
+        // Stops coroutine automatically
+        turnAnimationCoroutine = null;
+    }
+
+    private bool GetRelevantTurnAnimationAnimatorStateInfo(TurnAnimationDirection turnAnimationDirection, AnimatorStateInfoRef stateInfoRef, out AnimatorStateInfo animatorStateInfoRef)
+    {
+
+        var tempID = turnAnimationDirection == TurnAnimationDirection.left ? turnLeftState : turnRightState;
+        AnimatorStateInfo tempStateInfo;
+        if ((stateInfoRef == AnimatorStateInfoRef.current || stateInfoRef == AnimatorStateInfoRef.both))
+        {
+            tempStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            if (tempStateInfo.shortNameHash == tempID)
+            {
+                animatorStateInfoRef = tempStateInfo;
+                return true;
+
+            }
+        }
+        else
+        {
+            if ((stateInfoRef == AnimatorStateInfoRef.next || stateInfoRef == AnimatorStateInfoRef.both))
+            {
+                tempStateInfo = animator.GetNextAnimatorStateInfo(0);
+                if (tempStateInfo.shortNameHash == tempID)
+                {
+                    animatorStateInfoRef = tempStateInfo;
+                    return true;
+                }
+            }
+
+        }
+        animatorStateInfoRef = default(AnimatorStateInfo);
+        return false;
+
+
+    }
+
+    private bool TurnAnimationIsPalying(TurnAnimationDirection turnAnimationDirection, AnimatorStateInfoRef stateInfoRef)
+    {
+        var tempID = ((turnAnimationDirection == TurnAnimationDirection.left) ? (turnLeftState) : (turnRightState));
+        AnimatorStateInfo tempStateInfo;
+        if ((stateInfoRef == AnimatorStateInfoRef.current || stateInfoRef == AnimatorStateInfoRef.both))
+        {
+            tempStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            if (tempStateInfo.shortNameHash == tempID)
+            {
+                return true;
+
+            }
+        }
+        else if ((stateInfoRef == AnimatorStateInfoRef.next || stateInfoRef == AnimatorStateInfoRef.both))
+        {
+            tempStateInfo = animator.GetNextAnimatorStateInfo(0);
+            if (tempStateInfo.shortNameHash == tempID)
+            {
+                return true;
+            }
+
+
+        }
+
+        return false;
+    }
+
+    private void CalculateTurnAnimationRotationProperties()
+    {
+        remainingTurnAnimDuration = realTurnAnimDuration;
+
+        var amount = Vector3.Angle(directions[CharacterAnimationDirection.Type.Body].currentDirection, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+
+        var cross = Vector3.Cross(directions[CharacterAnimationDirection.Type.Body].currentDirection, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+        if (cross.y < 0)
+        {
+            amount = -amount;
+        }
+        // ToDo: remaining angular delta to body target berechnen? Oder Attention Target?
+        turnAnimRotationFactor = (amount / (turnAnimationAngularDelta - Mathf.Abs(rawAnimatorRootRotationThisAnimationPeriod)));
+        //turnAnimAnglesPerSecond = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta - turnAnimationAngularDelta) / remainingTurnAnimDuration;
+        //turnAnimAngularDeltaThisFrame = turnAnimAnglesPerSecond * Time.deltaTime;
+    }
+
+    public void UpdateTurnAnimationRotationPropertiesForSecondStep()
+    {
+
+        // ToDo: nur eine propertie update method?
+
+
+        remainingTurnAnimDuration = realTurnAnimDuration;
+
+        // ToDo: Get biggest amount
+        float amount;
+        Vector3 cross;
+
+        // Body Target as Target
+         amount = Vector3.Angle(directions[CharacterAnimationDirection.Type.Body].currentDirection, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+         cross = Vector3.Cross(directions[CharacterAnimationDirection.Type.Body].currentDirection, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+
+        // Attention current as Target
+        var tempAmount = Vector3.Angle(directions[CharacterAnimationDirection.Type.Body].currentDirection, directions[CharacterAnimationDirection.Type.Attention].currentDirection);
+        var tempCross = Vector3.Cross(directions[CharacterAnimationDirection.Type.Body].currentDirection, directions[CharacterAnimationDirection.Type.Attention].currentDirection);
+
+        if(tempAmount > amount)
+        {
+            amount = tempAmount;
+            cross = tempCross;
+            directions[CharacterAnimationDirection.Type.Body].targetDirection = directions[CharacterAnimationDirection.Type.Attention].currentDirection;
+
+        }
+
+
+        if (cross.y < 0)
+        {
+            amount = -amount;
+        }
+        // ToDo: remaining angular delta to body target berechnen? Oder Attention Target?
+        Debug.Log("Abzug: " + Mathf.Abs(rawAnimatorRootRotationThisAnimationPeriod));
+        turnAnimRotationFactor = (amount/ (turnAnimationAngularDelta - Mathf.Abs(rawAnimatorRootRotationThisAnimationPeriod)));
+        //turnAnimAnglesPerSecond = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta - turnAnimationAngularDelta) / remainingTurnAnimDuration;
+        //turnAnimAngularDeltaThisFrame = turnAnimAnglesPerSecond * Time.deltaTime;
+
+        // ToDo: Apply restrictions!
+        // ToDo: Handle Turn over with restrictions?
+    }
+
 
     void OnAnimatorMove()
     {
@@ -318,136 +451,91 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
         var rotationFactor = 1.0f;
 
 
-            var currentBaseState = animator.GetCurrentAnimatorStateInfo(0);
-            var nextStateBase = animator.GetNextAnimatorStateInfo(0);
-            // Debug.Log("currentBaseState "+ currentBaseState.shortNameHash);
+        //      var currentBaseState = animator.GetCurrentAnimatorStateInfo(0);
+        //      var nextStateBase = animator.GetNextAnimatorStateInfo(0);
+        //      // Debug.Log("currentBaseState "+ currentBaseState.shortNameHash);
 
-            var realDurationInSeconds = animator.speed * turnAnimationDuration;
+        //      var realDurationInSeconds = animator.speed * turnAnimationDuration;
 
-            var remainingDurationInSeconds = realDurationInSeconds;
+        //      var remainingDurationInSeconds = realDurationInSeconds;
 
-            if (currentBaseState.shortNameHash == turnLeftState || currentBaseState.shortNameHash == turnRightState)
-            {
-             //   Debug.Log("Do Stuff Here");
-                remainingDurationInSeconds *= 1 - currentBaseState.normalizedTime;
-            }
+        //      if (currentBaseState.shortNameHash == turnLeftState || currentBaseState.shortNameHash == turnRightState)
+        //      {
+        //       //   Debug.Log("Do Stuff Here");
+        //          remainingDurationInSeconds *= 1 - currentBaseState.normalizedTime;
+        //      }
 
-      //  Debug.Log("initialDelta: " + directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta);
-        rotationFactor = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta / turnAnimationAngularDelta);
-        var anglePerSeconds = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta - turnAnimationAngularDelta)/ remainingDurationInSeconds;
-            //Debug.Log("crnt AngularDleta on target switch" + directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta);
-            var angularDeltaThisFrame = anglePerSeconds * Time.deltaTime;
+        ////  Debug.Log("initialDelta: " + directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta);
+        //  rotationFactor = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta / turnAnimationAngularDelta);
+        //  var anglePerSeconds = (directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta - turnAnimationAngularDelta)/ remainingDurationInSeconds;
+        //      //Debug.Log("crnt AngularDleta on target switch" + directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta);
+        //      var angularDeltaThisFrame = anglePerSeconds * Time.deltaTime;
 
 
-        // IS NOT MOVING --> Stretching the Animation rotation
-        if (directions[CharacterAnimationDirection.Type.Movement].currentDirection == default(Vector4) && currentBaseState.shortNameHash != moveState)
+        // ToDo: Wann correction? if jetzt idle und kein next?
+        if(animator.GetCurrentAnimatorStateInfo(0).shortNameHash == idleState)
         {
 
+            // Correction steps:
 
-
-           // Debug.Log("realDurationInSeconds " + realDurationInSeconds + " / angelPerSeconds: " + anglePerSeconds + " / angularDeltaThisFrame: " + angularDeltaThisFrame);
-            if (currentBaseState.shortNameHash == turnLeftState ||
-                currentBaseState.shortNameHash == turnRightState ||
-                //(currentBaseState.shortNameHash == idleState && currentBaseState.normalizedTime < 0.3f) ||
-                currentBaseState.shortNameHash == idleState && (nextStateBase.shortNameHash == turnLeftState || nextStateBase.shortNameHash == turnRightState))
+            var rotationYCorrection = GetAngleFromReferenceForward(MovementRef.transform, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+            // If greater: Wait for Aniamtion
+            if (rotationYCorrection < 5.0f)
             {
-               //Debug.Log("anim rot1 : " + animator.deltaRotation.eulerAngles + " / factor: "+rotationFactor);
-                // Apply Anim rotationw ith factor
-                var rotation = new Vector3(
-                    GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.x) * Mathf.Abs(rotationFactor)),
-                    GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.y) * Mathf.Abs(rotationFactor)),
-                    GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.z) * Mathf.Abs(rotationFactor)));
-
-
-                // Debug.Log("rot : " + rotation + " / factor: " + rotationFactor);
-                // position.y = animator.nextPosition.y;
-                MovementRef.rotation *= Quaternion.Euler(rotation.x, rotation.y, rotation.z);
-                Debug.Log("2");
-
-
-                // Apply custom rotation linear
-                //if (Mathf.Abs(GetSignedAngularDelta(Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection).eulerAngles.y)) >= Mathf.Abs(angularDeltaThisFrame))
-                //{
-                //    // Debug.Log("YES");
-                //    MovementRef.rotation *= Quaternion.AngleAxis(angularDeltaThisFrame, Vector3.up);
-                //}
-                //else
-                //{
-                //    // Debug.Log("NO");
-                //    MovementRef.rotation *= Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection);
-
-                //}
+               // MovementRef.rotation *= Quaternion.Euler(0, GetSignedAngle(rotationYCorrection) * Time.deltaTime * idleRotationErrorSolverSpeed, 0);
+                //Debug.Log("3");
 
             }
-            else
-            {
-                // Debug.Log("NO");
-                // MovementRef.rotation *= Quaternion.FromToRotation(MovementRef.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection);
 
-                // Correction steps:
-
-                var rotationYCorrection = GetAngleFromReferenceForward(MovementRef.transform, directions[CharacterAnimationDirection.Type.Body].targetDirection);
-                MovementRef.rotation *= Quaternion.Euler(0, GetSignedAngle( rotationYCorrection) * Time.deltaTime * idleRotationErrorSolverSpeed, 0);
-                Debug.Log("3");
-
-                //Debug.Log("NOO: " + GetSignedAngle(rotationYCorrection) * Time.deltaTime * idleRotationErrorSolverSpeed);
-            }
-
-            if (currentBaseState.shortNameHash == turnLeftState || currentBaseState.shortNameHash == turnRightState)
-            {
-                directions[CharacterAnimationDirection.Type.Body].currentDirection = MovementRef.transform.forward;
-            }
+            //Debug.Log("NOO: " + GetSignedAngle(rotationYCorrection) * Time.deltaTime * idleRotationErrorSolverSpeed);
         }
 
 
+        //    if (currentBaseState.shortNameHash == turnLeftState ||
+        //currentBaseState.shortNameHash == turnRightState ||
+        ////(currentBaseState.shortNameHash == idleState && currentBaseState.normalizedTime < 0.3f) ||
+        //currentBaseState.shortNameHash == idleState && (nextStateBase.shortNameHash == turnLeftState || nextStateBase.shortNameHash == turnRightState))
+        //    {
+        //        //Debug.Log("anim rot1 : " + animator.deltaRotation.eulerAngles + " / factor: "+rotationFactor);
+        //        // Apply Anim rotationw ith factor
+        //        var rotation = new Vector3(
+        //            GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.x) * Mathf.Abs(rotationFactor)),
+        //            GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.y) * Mathf.Abs(rotationFactor)),
+        //            GetSignedAngle(GetSignedAngle(animator.deltaRotation.eulerAngles.z) * Mathf.Abs(rotationFactor)));
+
+
+        //        // Debug.Log("rot : " + rotation + " / factor: " + rotationFactor);
+        //        // position.y = animator.nextPosition.y;
+        //        MovementRef.rotation *= Quaternion.Euler(rotation.x, rotation.y, rotation.z);
+        //        Debug.Log("2");
 
 
 
-        //Quaternion deltaRotation = animator.deltaRotation;
-        //Quaternion rotation = animator.rootRotation;
-        //Debug.Log("deltaRotation: " + deltaRotation.eulerAngles.y);
 
-        //var rotationY = rotation.eulerAngles.y > 180 ? (rotation.eulerAngles.y - 360) : rotation.eulerAngles.y;
+        //    }
+        //    else
+        //    {
 
-        //var oldRotaionY = oldRotation.eulerAngles.y > 180 ? (oldRotation.eulerAngles.y - 360) : oldRotation.eulerAngles.y;
+        //        // Correction steps:
 
-        //var tempAnimRotDelta = oldRotaionY - rotationY;
-        //Debug.Log("Anim Rot Delta:" + tempAnimRotDelta);
-        //oldRotation = rotation;
+        //        var rotationYCorrection = GetAngleFromReferenceForward(MovementRef.transform, directions[CharacterAnimationDirection.Type.Body].targetDirection);
+        //        // If greater: Wait for Aniamtion
+        //        if (rotationYCorrection < 5.0f)
+        //        {
+        //            MovementRef.rotation *= Quaternion.Euler(0, GetSignedAngle(rotationYCorrection) * Time.deltaTime * idleRotationErrorSolverSpeed, 0);
+        //            Debug.Log("3");
 
-        //Vector3 local = MovementRef.transform.InverseTransformDirection(directions[CharacterAnimationDirection.Type.Body].targetDirection);
+        //        }
 
-        //var test = Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg;
-        ////test = Mathf.LerpAngle(MovementRef.transform.rotation.eulerAngles.y, test, Time.deltaTime * 5);
-        ////transform.rotation = rotation;
-        //var angularDelta = 0.0f;
-        //if (Mathf.Abs(Vector3.Angle(MovementRef.transform.forward, directions[CharacterAnimationDirection.Type.Body].targetDirection) ) > 10) // animator.GetCurrentAnimatorStateInfo().na
-        //{
-        //    var tempSpeedFactor = Mathf.Abs(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) / turnAnimationAngularDelta;
-        //    var tempAmountFactor = Mathf.Abs(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) - turnAnimationAngularDelta;
+        //        //Debug.Log("NOO: " + GetSignedAngle(rotationYCorrection) * Time.deltaTime * idleRotationErrorSolverSpeed);
+        //    }
 
-        //    //tempSpeedFactor = 1.5f;
-        //    //tempAmountFactor = 45;
-        //    //var targetRotation = transform.rotation * tempAnimRotDelta;
-        //    //targetRotation.eulerAngles += new Vector3(0, GetAngleFromForward(directions[CharacterAnimationDirection.Type.Body].targetDirection), 0);
-        //    angularDelta = (Mathf.Sign(directions[CharacterAnimationDirection.Type.Body].initialCurrentToTargetAngularDelta) * tempAmountFactor * (Time.deltaTime / (turnAnimationDuration )));
-        //    //rotation = Quaternion.RotateTowards(rotation, targetRotation, angularDelta);
-        //    //  rotation.eulerAngles += new Vector3(0, ,0);
-        //}else
-        //{
-
-        //}
+        //    if (currentBaseState.shortNameHash == turnLeftState || currentBaseState.shortNameHash == turnRightState)
+        //    {
+        //        directions[CharacterAnimationDirection.Type.Body].currentDirection = MovementRef.transform.forward;
+        //    }
 
 
-        ////var angularDeltaY = tempAnimRotDelta.eulerAngles.y > 180 ? (tempAnimRotDelta.eulerAngles.y - 360) : tempAnimRotDelta.eulerAngles.y;
-        ////Debug.Log(angularDeltaY);
-        ////amount = amount * 2;
-        ////var tempEuler = transform.rotation.eulerAngles;
-        ////tempEuler += amount;
-        //// transform.rotation *= tempAnimRotDelta ;
-        ////Debug.Log("DeltaRootRotation: " + deltaRotation.eulerAngles.y + " / angularDelta: " + angularDelta);
-        //MovementRef.rotation *= Quaternion.AngleAxis((deltaRotation.eulerAngles.y > 180 ? (deltaRotation.eulerAngles.y - 360) : deltaRotation.eulerAngles.y) + angularDelta, Vector3.up);
-        ////transform.rotation *= angularDeltaY < 0 ? Quaternion.Inverse(Quaternion.Euler(Vector3.up * angularDeltaY)) : Quaternion.Euler(Vector3.up * angularDeltaY);
 
     }
 
@@ -457,16 +545,7 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
         return (rotation > 180) ? rotation - (360 ) : rotation ;
     }
 
-    //protected override void CalculateAimVector()
-    //{
-    //    if(fetchedAimVector != default(Vector4))
-    //    {
-    //        currentAimVector = fetchedAimVector;
-    //    }else
-    //    {
-    //        currentAimVector = currentAttentionVector;
-    //    }
-    //}
+  
 
     protected override void ApplyAimVector()
     {
@@ -475,17 +554,7 @@ public class HumanoidCharacterAnimationManager : CharacterAnimationManager {
 
     }
 
-    //protected override void CalculateLookVector()
-    //{
-    //    if (fetchedLookVector != default(Vector4))
-    //    {
-    //        currentLookVector = fetchedLookVector;
-    //    }
-    //    else
-    //    {
-    //        currentLookVector = currentAttentionVector;
-    //    }
-    //}
+  
 
     protected override void ApplyLookVector()
     {
