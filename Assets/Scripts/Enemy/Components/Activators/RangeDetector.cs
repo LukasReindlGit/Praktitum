@@ -25,7 +25,7 @@ namespace AI.Component
 
             if (other.gameObject == target)
             {
-                activateableTarget.GetComponent<IActivateable>().Activate();
+                ((IActivateable) activateableTarget).Activate();
                 activated = true;
             }
         }
