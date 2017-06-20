@@ -34,15 +34,15 @@ public class TargetPoint : MonoBehaviour {
         return manager;
     }
 
-    public Vector3 getRandomHitPointOnSurface()
+    public Vector3 getRandomHitPointOnSurface(float accuracy = 1.0f)
     {
         switch (primitiveType)
         {
             case PrimitiveTypes.cuboid:
-                return transform.TransformPoint(Random.value - 0.5f, Random.value - 0.5f, 0);
+                return transform.TransformPoint((Random.value - 0.5f) * accuracy, (Random.value - 0.5f) * accuracy, 0);
             case PrimitiveTypes.circle:
                 Vector2 random = Random.insideUnitCircle;
-                return transform.TransformPoint(Random.insideUnitSphere);
+                return transform.TransformPoint(random * accuracy);
             default:
                 return transform.position;
         }

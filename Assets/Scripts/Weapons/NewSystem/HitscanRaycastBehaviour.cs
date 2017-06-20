@@ -29,7 +29,7 @@ namespace Weapons
 
             availableTargets.Clear();
 
-            foreach (var a in targetingSystem.GetTargets(transform.forward, param))
+            foreach (var a in targetingSystem.GetTargets(transform.position, transform.forward, param))
             {
                 availableTargets.Add(a);
             }
