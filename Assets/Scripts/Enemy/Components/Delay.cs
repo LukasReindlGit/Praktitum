@@ -6,6 +6,10 @@ namespace AI.Component
 {
     public class Delay : MonoBehaviour, IActivateable
     {
+        #region Variables
+
+        [SerializeField]
+        bool autostart = false;
 
         [SerializeField]
         float delayTime = 1;
@@ -13,23 +17,59 @@ namespace AI.Component
         [SerializeField]
         List<MonoBehaviour> activateables = new List<MonoBehaviour>();
 
-        IEnumerator WaitThenFire()
-        {
-            yield return new WaitForSeconds(delayTime);
+        [SerializeField]
+        bool loop = false;
 
-            foreach (var a in activateables)
+        bool running = false;
+        #endregion
+
+        #region Methods
+
+        private void Start()
+        {
+            if(autostart)
             {
-                IActivateable ia = a.GetComponent<IActivateable>();
-                if (ia != null)
-                {
-                    ia.Activate();
-                }
+                Activate();
             }
         }
 
+        IEnumerator WaitThenFire()
+        {
+            // Only one instance should be running at the time
+            if (running)
+            {
+                yield return null;
+            }
+
+            running = true;
+
+            do
+            {
+                // Wait the defined amount of time
+                yield return new WaitForSeconds(delayTime);
+
+                // Activate all targets
+                foreach (var a in activateables)
+                {
+                    IActivateable ia = a.GetComponent<IActivateable>();
+                    if (ia != null)
+                    {
+                        ia.Activate();
+                    }
+                }
+            } while (loop);
+
+            running = false;
+        }
+
+        /// <summary>
+        /// Called from outside
+        /// </summary>
+        /// <param name="state"></param>
         public void Activate(ActivateableState state = ActivateableState.NONE)
         {
             StartCoroutine(WaitThenFire());
         }
+        #endregion
     }
 }
