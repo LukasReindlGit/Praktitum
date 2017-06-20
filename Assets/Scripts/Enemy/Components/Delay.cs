@@ -2,31 +2,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Delay : MonoBehaviour , IActivateable {
-
-    [SerializeField]
-    float delayTime = 1;
-
-    [SerializeField]
-    List<MonoBehaviour> activateables = new List<MonoBehaviour>();
-    
-    IEnumerator WaitThenFire()
+namespace AI.Component
+{
+    public class Delay : MonoBehaviour, IActivateable
     {
-        yield return new WaitForSeconds(delayTime);
 
-        foreach(var a in activateables)
+        [SerializeField]
+        float delayTime = 1;
+
+        [SerializeField]
+        List<MonoBehaviour> activateables = new List<MonoBehaviour>();
+
+        IEnumerator WaitThenFire()
         {
-            IActivateable ia = a.GetComponent<IActivateable>();
-            if (ia!=null)
+            yield return new WaitForSeconds(delayTime);
+
+            foreach (var a in activateables)
             {
-                ia.Activate();
+                IActivateable ia = a.GetComponent<IActivateable>();
+                if (ia != null)
+                {
+                    ia.Activate();
+                }
             }
         }
-    }
-    
-    public void Activate(ActivateableState state = ActivateableState.NONE)
-    {
-        StartCoroutine(WaitThenFire());
+
+        public void Activate(ActivateableState state = ActivateableState.NONE)
+        {
+            StartCoroutine(WaitThenFire());
+        }
     }
 }

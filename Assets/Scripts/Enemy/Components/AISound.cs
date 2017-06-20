@@ -1,16 +1,18 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+namespace AI.Component
+{
+    public class AISound : MonoBehaviour, IActivateable
+    {
 
-public class AISound : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+        public void Activate(ActivateableState state = ActivateableState.NONE)
+        {
+            //TODO Play sound
+            throw new NotImplementedException();
+        }
+
+    }
 }

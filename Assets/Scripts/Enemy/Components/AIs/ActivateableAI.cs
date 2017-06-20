@@ -2,11 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class ActivateableAI : MonoBehaviour, IActivateable
+namespace AI.Component
 {
-    public void Activate(ActivateableState state = ActivateableState.NONE)
+    public class ActivateableAI : MonoBehaviour, IActivateable
     {
-        throw new NotImplementedException();
+        public void Activate(ActivateableState state = ActivateableState.NONE)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

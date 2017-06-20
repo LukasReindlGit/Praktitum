@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+namespace AI.Component
+{
+    public enum ActivateableState { NONE };
 
-public enum ActivateableState {NONE };
+    public interface IActivateable
+    {
 
-public interface IActivateable {
+        void Activate(ActivateableState state = ActivateableState.NONE);
 
-    void Activate(ActivateableState state = ActivateableState.NONE);
-    
-         
+
+    }
 }
