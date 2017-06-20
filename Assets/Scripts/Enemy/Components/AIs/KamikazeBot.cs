@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class KamikazeBot : BasicAI, IActivateable
+namespace AI.Component
 {
-    public void Activate(ActivateableState state = ActivateableState.NONE)
+    public class KamikazeBot : BasicAI, IActivateable
     {
+        public void Activate(ActivateableState state = ActivateableState.NONE)
+        {
+        }
     }
 }
