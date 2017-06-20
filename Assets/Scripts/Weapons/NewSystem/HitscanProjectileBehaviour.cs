@@ -32,7 +32,7 @@ namespace Weapons
         private void UpdateTargets(WeaponBehaviour weapon)
         {
             availableTargets.Clear();
-            Target[] targetArr = targetingSystem.GetTargets(transform.forward, param);
+            Target[] targetArr = targetingSystem.GetTargets(transform.position, transform.forward, param);
             if (targetArr == null)
                 return;
 

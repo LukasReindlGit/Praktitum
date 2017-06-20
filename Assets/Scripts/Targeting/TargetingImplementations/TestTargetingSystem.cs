@@ -6,7 +6,8 @@ using Weapons;
 
 public class TestTargetingSystem : TargetingSystem
 {
-    public override Target[] GetTargets(Vector3 direction, Parameters parameters)
+
+    public override Target[] GetTargets(Vector3 position, Vector3 direction, Parameters parameters)
     {
         return null;
     }
