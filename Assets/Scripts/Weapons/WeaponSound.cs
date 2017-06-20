@@ -46,6 +46,11 @@ namespace Weapons
 
         private IEnumerator InstantiateSound(AudioClip clip)
         {
+            if(clip==null)
+            {
+                yield return null;
+            }
+
             GameObject g = new GameObject();
             g.transform.position = transform.position;
             AudioSource auSou = g.AddComponent<AudioSource>();
