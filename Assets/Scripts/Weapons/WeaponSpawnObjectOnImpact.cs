@@ -26,6 +26,11 @@ namespace Weapons
         
         private void SpawnObjectAtImpact(WeaponBehaviour weapon, RaycastHit hit, Vector3 origin)
         {
+            if(ObjectToSpawn==null)
+            {
+                return;
+            }
+
             GameObject g = Instantiate(ObjectToSpawn, hit.point, Quaternion.identity);
             g.transform.forward = (origin - hit.point).normalized;
         }
