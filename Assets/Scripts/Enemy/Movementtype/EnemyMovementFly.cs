@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyMovementWalk : Movementtype {
+public class EnemyMovementFly : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
