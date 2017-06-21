@@ -51,7 +51,7 @@ namespace AI.Component
                 // Activate all targets
                 foreach (var a in activateables)
                 {
-                    IActivateable ia = a.GetComponent<IActivateable>();
+                    IActivateable ia = (IActivateable) a;
                     if (ia != null)
                     {
                         ia.Activate();
