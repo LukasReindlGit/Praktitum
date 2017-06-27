@@ -18,10 +18,10 @@ public class TargetPoint : MonoBehaviour {
 
     public void Start()
     {
-        var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        /*var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         a.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         for (int i = 0; i < 30; i++)
-            Instantiate(a, getRandomHitPointOnSurface(), Quaternion.identity);
+            Instantiate(a, getRandomHitPointOnSurface(), Quaternion.identity);*/
     }
 
     public void setTargetPointManager(TargetPointManager manager)
