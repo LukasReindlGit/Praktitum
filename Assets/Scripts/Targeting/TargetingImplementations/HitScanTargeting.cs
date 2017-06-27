@@ -13,10 +13,10 @@ public class HitScanTargeting : TargetingSystem
     public HitScanTargeting(WeaponBehaviour weapon)
     {
         this.weapon = weapon;
-        system = new NearestEnemySpherical( 
-                                            LayerMask.GetMask("Shootable"), 
-                                            LayerMask.GetMask("Shootable", "Obstacle"), 
-                                            this.weapon.transform.position, 
+        system = new NearestEnemySpherical(
+                                            LayerMask.GetMask("Shootable"),
+                                            LayerMask.GetMask("Shootable", "Obstacle"),
+                                            this.weapon.transform.position,
                                             this.weapon.transform.forward,
                                             this.weapon.param.Range,
                                             this.weapon.param.Angle
@@ -37,9 +37,11 @@ public class HitScanTargeting : TargetingSystem
         TargetPointManager targetPointManager = target.GetComponentInChildren<TargetPointManager>();
         TargetPoint[] points = targetPointManager.getTargetPoints();
         int crits = targetPointManager.getCriticalCount();
-        List<TargetPoint> copiedPoints = new List<TargetPoint>(points);
-        int lengthCopiedPoints;
-        
+        List<TargetPoint> copiedPoints = new List<TargetPoint>();
+        copiedPoints.AddRange(points);
+        int copiedPointsLength, rnd;
+        TargetPoint tarPoint;
+
         // Check if critical hit
         if (UnityEngine.Random.value <= parameters.CriticalChance)
         {
@@ -47,17 +49,7 @@ public class HitScanTargeting : TargetingSystem
             copiedPoints = new TargetPoint[lengthCopiedPoints];
             Array.Copy(points, copiedPoints, lengthCopiedPoints);*/
             copiedPoints.RemoveRange(crits, copiedPoints.Count - crits);
-            while (copiedPoints.Count > 0)
-            {
-                int rnd = UnityEngine.Random.Range(0, copiedPoints.Count);
-                TargetPoint p = copiedPoints[rnd];
-                if (p.isInShootingAngle(position))
-                {
-                    targets[0] = new Target(p, p.getRandomHitPointOnSurface() - p.gameObject.transform.position);
-                    break;
-                }
-                copiedPoints.RemoveAt(rnd);
-            }
+
         }
         else
         {
@@ -65,11 +57,29 @@ public class HitScanTargeting : TargetingSystem
             copiedPoints = new TargetPoint[lengthCopiedPoints];
             Array.Copy(points, crits, copiedPoints, 0, lengthCopiedPoints);*/
             copiedPoints.RemoveRange(0, crits);
-            while (copiedPoints.Count > 0)
-            {
+        }
 
+        copiedPointsLength = copiedPoints.Count;
+        while (copiedPointsLength > 0)
+        {
+            rnd = UnityEngine.Random.Range(0, copiedPointsLength);
+            tarPoint = copiedPoints[rnd];
+            if (tarPoint.isInShootingAngle(position))
+            {
+                targets[0] = new Target(tarPoint, tarPoint.getRandomHitPointOnSurface(parameters.Accuracy) - tarPoint.gameObject.transform.position);
+                break;
+            }
+            copiedPoints.RemoveAt(rnd);
+            copiedPointsLength -= 1;
+        }
+        if (copiedPointsLength == 0)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                targets[i] = new Target(points[0], points[0].getRandomHitPointOnSurface(parameters.Accuracy) - points[0].gameObject.transform.position);
             }
         }
+
 
         return targets;
     }
