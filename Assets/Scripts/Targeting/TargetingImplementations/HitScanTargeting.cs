@@ -10,6 +10,11 @@ public class HitScanTargeting : TargetingSystem
     private WeaponBehaviour weapon;
     private GameObject target;
 
+    private bool wasCritical;
+    private TargetPointManager targetPointManager;
+    private int rnd, copiedPointsLength;
+    private TargetPoint tarPoint;
+
     public HitScanTargeting(WeaponBehaviour weapon)
     {
         this.weapon = weapon;
@@ -25,7 +30,12 @@ public class HitScanTargeting : TargetingSystem
 
     public override Target[] GetTargets(Vector3 position, Vector3 direction, Parameters parameters)
     {
-        Target[] targets = new Target[(parameters.SalveCount > 0) ? parameters.SalveCount : 0];
+        if (parameters.SalveCount <= 0)
+        {
+            return null;
+        }
+
+        Target[] targets = new Target[parameters.SalveCount];
         int length = targets.Length;
 
         target = system.getTargetEnemy();
@@ -34,52 +44,59 @@ public class HitScanTargeting : TargetingSystem
             return null;
         }
 
-        TargetPointManager targetPointManager = target.GetComponentInChildren<TargetPointManager>();
-        TargetPoint[] points = targetPointManager.getTargetPoints();
-        int crits = targetPointManager.getCriticalCount();
-        List<TargetPoint> copiedPoints = new List<TargetPoint>();
-        copiedPoints.AddRange(points);
-        int copiedPointsLength, rnd;
-        TargetPoint tarPoint;
+        targetPointManager = target.GetComponentInChildren<TargetPointManager>();
+        List<TargetPoint> copiedPoints;
 
         // Check if critical hit
-        if (UnityEngine.Random.value <= parameters.CriticalChance)
+        if (wasCritical = (UnityEngine.Random.value <= parameters.CriticalChance))
         {
-            /*lengthCopiedPoints = crits;
-            copiedPoints = new TargetPoint[lengthCopiedPoints];
-            Array.Copy(points, copiedPoints, lengthCopiedPoints);*/
-            copiedPoints.RemoveRange(crits, copiedPoints.Count - crits);
-
+            copiedPoints = new List<TargetPoint>(targetPointManager.getCriticalTargetPoints());
+            copiedPointsLength = targetPointManager.getCriticalCount();
         }
         else
         {
-            /*lengthCopiedPoints = points.Length - crits;
-            copiedPoints = new TargetPoint[lengthCopiedPoints];
-            Array.Copy(points, crits, copiedPoints, 0, lengthCopiedPoints);*/
-            copiedPoints.RemoveRange(0, crits);
+            copiedPoints = new List<TargetPoint>(targetPointManager.getUncriticalTargetPoints());
+            copiedPointsLength = targetPointManager.getUncriticalCount();
         }
 
-        copiedPointsLength = copiedPoints.Count;
-        while (copiedPointsLength > 0)
+        for (int i = 0; i < 1; i++)
         {
-            rnd = UnityEngine.Random.Range(0, copiedPointsLength);
-            tarPoint = copiedPoints[rnd];
-            if (tarPoint.isInShootingAngle(position))
+            while (copiedPointsLength > 0)
             {
-                targets[0] = new Target(tarPoint, tarPoint.getRandomHitPointOnSurface(parameters.Accuracy) - tarPoint.gameObject.transform.position);
+                rnd = UnityEngine.Random.Range(0, copiedPointsLength);
+                tarPoint = copiedPoints[rnd];
+                if (tarPoint.isInShootingAngle(position))
+                {
+                    targets[0] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
+                    break;
+                }
+                copiedPoints.RemoveAt(rnd);
+                copiedPointsLength -= 1;
+            }
+
+            if (copiedPointsLength == 0)
+            {
+                if (wasCritical)
+                {
+                    copiedPoints = new List<TargetPoint>(targetPointManager.getUncriticalTargetPoints());
+                    copiedPointsLength = targetPointManager.getUncriticalCount();
+                }
+                else
+                {
+                    copiedPoints = new List<TargetPoint>(targetPointManager.getCriticalTargetPoints());
+                    copiedPointsLength = targetPointManager.getCriticalCount();
+                }
+            }
+            else
+            {
                 break;
             }
-            copiedPoints.RemoveAt(rnd);
-            copiedPointsLength -= 1;
-        }
-        if (copiedPointsLength == 0)
-        {
-            for (int i = 0; i < length; i++)
-            {
-                targets[i] = new Target(points[0], points[0].getRandomHitPointOnSurface(parameters.Accuracy) - points[0].gameObject.transform.position);
-            }
         }
 
+        for (int i = 1; i < length; i++)
+        {
+            targets[i] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
+        }
 
         return targets;
     }

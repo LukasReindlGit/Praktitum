@@ -82,15 +82,20 @@ public class TargetPoint : MonoBehaviour
         return manager;
     }
 
-    public Vector3 getRandomHitPointOnSurface(float accuracy = 1.0f)
+    public Target getCalculatedHitPoint(float accuracy, float precision)
+    {
+        return new Target(this, getRandomHitPointOnSurface(precision) - gameObject.transform.position);
+    }
+
+    public Vector3 getRandomHitPointOnSurface(float precision = 1.0f)
     {
         switch (primitiveType)
         {
             case PrimitiveTypes.cuboid:
-                return transform.TransformPoint((UnityEngine.Random.value - 0.5f) * accuracy, (UnityEngine.Random.value - 0.5f) * accuracy, 0);
+                return transform.TransformPoint((UnityEngine.Random.value - 0.5f) * precision, (UnityEngine.Random.value - 0.5f) * precision, 0);
             case PrimitiveTypes.circle:
                 Vector2 random = UnityEngine.Random.insideUnitCircle;
-                return transform.TransformPoint(random * accuracy);
+                return transform.TransformPoint(random * precision);
             default:
                 return transform.position;
         }
