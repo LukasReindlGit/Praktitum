@@ -35,6 +35,11 @@ public class TargetPointManager : MonoBehaviour {
         // Get all target points on the enemy
         targets = transform.parent.gameObject.GetComponentsInChildren<TargetPoint>();
 
+        if (targets == null || targets.Length == 0)
+        {
+            throw new MissingComponentException("Target does not have any TargetPoints!");
+        }
+
         // Sort the array: First critical target points, then uncritical target points
         Array.Sort(targets, delegate (TargetPoint a, TargetPoint b) {
             if (a.critical && !b.critical)
@@ -82,7 +87,7 @@ public class TargetPointManager : MonoBehaviour {
     public TargetPoint[] getCriticalTargetPoints()
     {
         if (critTargets == null) {
-            TargetPoint[] critTargets = new TargetPoint[criticalCount];
+            critTargets = new TargetPoint[criticalCount];
             Array.Copy(targets, critTargets, criticalCount);
         }
         return critTargets;
@@ -96,7 +101,7 @@ public class TargetPointManager : MonoBehaviour {
     {
         if (uncritTargets == null)
         {
-            TargetPoint[] uncritTargets = new TargetPoint[targets.Length - criticalCount];
+            uncritTargets = new TargetPoint[targets.Length - criticalCount];
             Array.Copy(targets, criticalCount, uncritTargets, 0, targets.Length - criticalCount);
         }
         return uncritTargets;

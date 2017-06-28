@@ -34,7 +34,6 @@ public class HitScanTargeting : TargetingSystem
         {
             return null;
         }
-
         Target[] targets = new Target[parameters.SalveCount];
         int length = targets.Length;
 
@@ -45,6 +44,11 @@ public class HitScanTargeting : TargetingSystem
         }
 
         targetPointManager = target.GetComponentInChildren<TargetPointManager>();
+        if (targetPointManager == null)
+        {
+            throw new MissingComponentException("Target does not have any TargetPointManager!");
+        }
+
         List<TargetPoint> copiedPoints;
 
         // Check if critical hit
