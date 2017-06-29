@@ -69,6 +69,12 @@ public class TargetPointManager : MonoBehaviour {
         }
 
         uncriticalCount = targetsLength - criticalCount;
+
+        critTargets = new TargetPoint[criticalCount];
+        Array.Copy(targets, critTargets, criticalCount);
+
+        uncritTargets = new TargetPoint[uncriticalCount];
+        Array.Copy(targets, criticalCount, uncritTargets, 0, uncriticalCount);
 	}
 	
     /// <summary>
@@ -86,10 +92,6 @@ public class TargetPointManager : MonoBehaviour {
     /// <returns>critical TargetPoint array</returns>
     public TargetPoint[] getCriticalTargetPoints()
     {
-        if (critTargets == null) {
-            critTargets = new TargetPoint[criticalCount];
-            Array.Copy(targets, critTargets, criticalCount);
-        }
         return critTargets;
     }
 
@@ -99,11 +101,6 @@ public class TargetPointManager : MonoBehaviour {
     /// <returns>uncritical TargetPoint array</returns>
     public TargetPoint[] getUncriticalTargetPoints()
     {
-        if (uncritTargets == null)
-        {
-            uncritTargets = new TargetPoint[targets.Length - criticalCount];
-            Array.Copy(targets, criticalCount, uncritTargets, 0, targets.Length - criticalCount);
-        }
         return uncritTargets;
     }
 

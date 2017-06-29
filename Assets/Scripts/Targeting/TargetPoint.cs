@@ -24,7 +24,7 @@ public class TargetPoint : MonoBehaviour
         /*var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         a.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         for (int i = 0; i < 30; i++)
-            Instantiate(a, getRandomHitPointOnSurface(), Quaternion.identity);*/
+            Instantiate(a, getRandomHitPointOnSurface(0.5f), Quaternion.identity);*/
     }
 
     public void setTargetPointManager(TargetPointManager manager)
@@ -84,7 +84,7 @@ public class TargetPoint : MonoBehaviour
 
     public Target getCalculatedHitPoint(float accuracy, float precision)
     {
-        return new Target(this, getRandomHitPointOnSurface(precision) - gameObject.transform.position);
+        return new Target(this, getRandomHitPointOnSurface(precision) - transform.position);
     }
 
     public Vector3 getRandomHitPointOnSurface(float precision = 1.0f)
@@ -103,6 +103,6 @@ public class TargetPoint : MonoBehaviour
 
     public bool isInShootingAngle(Vector3 posWeapon)
     {
-        return (Vector3.Angle(transform.position - posWeapon, transform.forward) <= shootableAngle);
+        return Vector3.Angle(posWeapon - gameObject.transform.position, gameObject.transform.forward) <= shootableAngle;
     }
 }

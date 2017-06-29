@@ -38,6 +38,7 @@ public class HitScanTargeting : TargetingSystem
         int length = targets.Length;
 
         target = system.getTargetEnemy();
+        Debug.Log(target.gameObject.name);
         if (target == null)
         {
             return null;
@@ -69,6 +70,7 @@ public class HitScanTargeting : TargetingSystem
             {
                 rnd = UnityEngine.Random.Range(0, copiedPointsLength);
                 tarPoint = copiedPoints[rnd];
+                Debug.Log(tarPoint.gameObject.name);
                 if (tarPoint.isInShootingAngle(position))
                 {
                     targets[0] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
@@ -100,6 +102,13 @@ public class HitScanTargeting : TargetingSystem
         for (int i = 1; i < length; i++)
         {
             targets[i] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
+        }
+
+        for (int i = 0; i < length; i++)
+        {
+            var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            a.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            GameObject.Instantiate(a, targets[i].TargetPos, Quaternion.identity);
         }
 
         return targets;
