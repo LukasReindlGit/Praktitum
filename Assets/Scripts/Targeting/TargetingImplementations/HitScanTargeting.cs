@@ -104,6 +104,7 @@ public class HitScanTargeting : TargetingSystem
             targets[i] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
         }
 
+        // Debugging
         for (int i = 0; i < length; i++)
         {
             var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
