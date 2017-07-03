@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace AI.Component
@@ -10,21 +11,12 @@ namespace AI.Component
         GameObject target;
 
         [SerializeField]
-        GameObject activateablesObject;
-
-        List<MonoBehaviour> activateables = new List<MonoBehaviour>();
-
-        //[SerializeField]
-        //MonoBehaviour activateableTarget;
-
+        MonoBehaviour[] activateables;
+               
         [SerializeField]
         bool onlyOnce = false;
         bool activated = false;
 
-        void Start()
-        {
-            IActivateable[] activ = FindObjectsOfType(typeof(IActivateable)) as IActivateable[];
-        }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -38,19 +30,22 @@ namespace AI.Component
 
             if (other.gameObject == target)
             {
-                
-                // Activate all targets
-                foreach (var a in activateables)
-                {
-                    IActivateable ia = (IActivateable)a;
-                    if (ia != null)
-                    {
-                        ia.Activate();
-                    }
-                }
-                
+                ActivateAllTargets();
+
                 //((IActivateable) activateableTarget).Activate();
                 activated = true;
+            }
+        }
+
+        private void ActivateAllTargets()
+        {
+            foreach (var a in activateables)
+            {
+                IActivateable ia = a as IActivateable;
+                if (ia != null)
+                {
+                    ia.Activate();
+                }
             }
         }
     }
