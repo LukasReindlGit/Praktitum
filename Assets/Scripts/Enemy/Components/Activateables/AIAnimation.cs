@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace AI.Component
 {
-    public class AISound : MonoBehaviour, IActivateable
-    {
 
+    public class AIAnimation : MonoBehaviour, IActivateable
+    {
+        [SerializeField]
+        Animator anim;
 
         public void Activate(ActivateableState state = ActivateableState.NONE)
         {
-            //TODO Play sound
+            //TODO starts an animation
             throw new NotImplementedException();
         }
-
+        
     }
 }

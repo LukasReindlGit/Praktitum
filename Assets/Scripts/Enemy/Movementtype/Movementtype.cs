@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-abstract class Movement : MonoBehaviour {
+public abstract class Movementtype : MonoBehaviour {
 
     NavMeshAgent agent;
 
@@ -15,6 +15,11 @@ abstract class Movement : MonoBehaviour {
     public void goToRange(Transform target, float maxDistance)
     {
      
+    }
+
+    public void StopMoving()
+    {
+
     }
 	
 }
