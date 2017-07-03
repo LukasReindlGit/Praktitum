@@ -25,8 +25,12 @@ namespace AI.Component
 
             if (other.gameObject == target)
             {
-                ((IActivateable) activateableTarget).Activate();
-                activated = true;
+                IActivateable activatable = activateableTarget as IActivateable;
+                if (activatable != null)
+                {
+                    activatable.Activate();
+                    activated = true;
+                }
             }
         }
     }
