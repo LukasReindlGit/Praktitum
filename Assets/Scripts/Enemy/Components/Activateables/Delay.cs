@@ -27,6 +27,7 @@ namespace AI.Component
 
         private void Start()
         {
+
             if(autostart)
             {
                 Activate();
