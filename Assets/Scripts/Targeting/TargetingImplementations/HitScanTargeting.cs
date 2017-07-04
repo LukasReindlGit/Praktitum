@@ -32,7 +32,8 @@ public class HitScanTargeting : TargetingSystem
     {
         if (parameters.SalveCount <= 0)
         {
-            return null;
+            Debug.LogWarning("ATTENTION: The SalveCount parameter is <= 0. Must be at least 1 or higher!");
+            return new Target[] { };
         }
         Target[] targets = new Target[parameters.SalveCount];
         int length = targets.Length;
@@ -41,7 +42,7 @@ public class HitScanTargeting : TargetingSystem
 
         if (target == null)
         {
-            return null;
+            return new Target[] { };
         }
 
         targetPointManager = target.GetComponentInChildren<TargetPointManager>();
@@ -95,7 +96,7 @@ public class HitScanTargeting : TargetingSystem
             else if (copiedPointsLength == 0)
             {
                 Debug.LogWarning("ATTENTION: Cannot target any TargetPoint on enemy (no available TargetPoint is visible). Enemies should have available TargetPoints in every direction!", target.gameObject);
-                return null;
+                return new Target[] { };
             }
             else
             {
