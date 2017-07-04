@@ -9,17 +9,25 @@ public abstract class Movementtype : MonoBehaviour {
 
     public void goTo(Transform target)
     {
-    agent.SetDestination(agent.transform.position);
+    agent.SetDestination(target.transform.position);
     }
 
-    public void goToRange(Transform target, float maxDistance)
+    //muss in update aufgerufen werden
+    public void goToRange(Transform target, float distance)
     {
-     
+        if (Vector3.Distance(transform.position, target.transform.position) < distance)
+        {
+            StopMoving();
+            return;
+        }
+        goTo(target);
     }
 
     public void StopMoving()
     {
-
+        agent.SetDestination(agent.transform.position);
     }
-	
+
+    
+
 }
