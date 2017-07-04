@@ -94,7 +94,8 @@ public class HitScanTargeting : TargetingSystem
             }
             else if (copiedPointsLength == 0)
             {
-                break;
+                Debug.LogWarning("ATTENTION: Cannot target any TargetPoint on enemy (no available TargetPoint is visible). Enemies should have available TargetPoints in every direction!", target.gameObject);
+                return null;
             }
             else
             {
