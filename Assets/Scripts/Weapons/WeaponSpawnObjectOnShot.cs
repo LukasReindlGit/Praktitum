@@ -9,7 +9,7 @@ namespace Weapons
         private WeaponBehaviour parentWeapon;
 
         [SerializeField]
-        private GameObject ObjectToSpawn;
+        private GameObject[] ObjectsToSpawn;
 
         [SerializeField]
         private bool spawnAsChild = false;
@@ -27,10 +27,13 @@ namespace Weapons
 
         private void SpawnObjectAtFire(WeaponBehaviour weapon)
         {
-            GameObject g = Instantiate(ObjectToSpawn, transform.position,transform.rotation);
-            if(spawnAsChild)
+            foreach (GameObject objectToSpawn in ObjectsToSpawn)
             {
-                g.transform.parent = transform;
+                GameObject g = Instantiate(objectToSpawn, transform.position, transform.rotation);
+                if (spawnAsChild)
+                {
+                    g.transform.parent = transform;
+                }
             }
         }
 
