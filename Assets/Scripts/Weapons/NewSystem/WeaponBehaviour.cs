@@ -73,14 +73,24 @@ namespace Weapons
         {
             if (Input.GetKeyDown(debugShootKey))
             {
-                isPressingButton = true;
-                TryShoot();
+                SetKeyPressed(true);
             }
 
             if (Input.GetKeyUp(debugShootKey))
             {
-                isPressingButton = false;
-                //isWaitingForRelease = false;
+                SetKeyPressed(false);
+            }
+        }
+
+        public void SetKeyPressed(bool value)
+        {
+            isPressingButton = value;
+            if (value)
+            {
+                TryShoot();
+            }
+            else
+            {
                 TryAbort();
             }
         }
