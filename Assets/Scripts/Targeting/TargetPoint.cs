@@ -89,6 +89,8 @@ public class TargetPoint : MonoBehaviour
 
     public Vector3 getRandomHitPointOnSurface(float precision = 1.0f)
     {
+        precision = 1.0f - precision;
+        precision = (precision <= 0.1f) ? 0.1f : precision;
         switch (primitiveType)
         {
             case PrimitiveTypes.cuboid:

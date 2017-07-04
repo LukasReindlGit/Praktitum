@@ -38,7 +38,7 @@ public class HitScanTargeting : TargetingSystem
         int length = targets.Length;
 
         target = system.getTargetEnemy();
-        Debug.Log(target.gameObject.name);
+
         if (target == null)
         {
             return null;
@@ -64,13 +64,12 @@ public class HitScanTargeting : TargetingSystem
             copiedPointsLength = targetPointManager.getUncriticalCount();
         }
 
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 2; i++)
         {
             while (copiedPointsLength > 0)
             {
                 rnd = UnityEngine.Random.Range(0, copiedPointsLength);
                 tarPoint = copiedPoints[rnd];
-                Debug.Log(tarPoint.gameObject.name);
                 if (tarPoint.isInShootingAngle(position))
                 {
                     targets[0] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
@@ -80,7 +79,7 @@ public class HitScanTargeting : TargetingSystem
                 copiedPointsLength -= 1;
             }
 
-            if (copiedPointsLength == 0)
+            if (copiedPointsLength == 0 && i == 0)
             {
                 if (wasCritical)
                 {
@@ -92,6 +91,10 @@ public class HitScanTargeting : TargetingSystem
                     copiedPoints = new List<TargetPoint>(targetPointManager.getCriticalTargetPoints());
                     copiedPointsLength = targetPointManager.getCriticalCount();
                 }
+            }
+            else if (copiedPointsLength == 0)
+            {
+                break;
             }
             else
             {
