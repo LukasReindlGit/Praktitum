@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace AI.Component
 {
-    public enum ActivateableState { NONE, ATTACK };
+    public enum ActivateableState { NONE, ATTACK, RANGE, MELEE };
 
     public interface IActivateable
     {

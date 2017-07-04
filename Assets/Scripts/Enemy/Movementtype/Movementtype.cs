@@ -1,11 +1,13 @@
-﻿using System.Collections;
+﻿using AI.Component;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public abstract class Movementtype : MonoBehaviour {
 
-    NavMeshAgent agent;
+    protected NavMeshAgent agent;
+    protected bool active = false;
 
     public void goTo(Transform target)
     {
@@ -26,6 +28,11 @@ public abstract class Movementtype : MonoBehaviour {
     public void StopMoving()
     {
         agent.SetDestination(agent.transform.position);
+    }
+
+    public void Activate()
+    {
+        active = !active;
     }
 
     

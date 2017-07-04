@@ -1,31 +1,41 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using AI.Component;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyMovementWalk : Movementtype {
 
     [SerializeField]
-    Transform target;
+    protected Transform target;
 
     [SerializeField]
-    float speed;
+    protected float speed;
 
     [SerializeField]
-    float minDist = 0.5f;
+    private float dist = 0.5f;
 
-    NavMeshAgent agent;
+    [SerializeField]
+
 
     // Use this for initialization
-    void Start()
+    virtual protected void Start()
     {
+        Activate();
         agent = GetComponent<NavMeshAgent>();
         agent.speed = Speed;
     }
 
     // Update is called once per frame
-    void Update () {
-		
+    void Update ()
+    {
+        //wenn deaktiviert läuft er zum letzten übergebenen Punkt
+        if (active)
+        {
+            goToRange(target, dist);
+            return;
+        }		
 	}
 
     //für den Fall dass speed zur Laufzeit geändert wird
@@ -39,6 +49,19 @@ public class EnemyMovementWalk : Movementtype {
         set
         {
             agent.speed = value;
+        }
+    }
+
+    protected float Dist
+    {
+        get
+        {
+            return dist;
+        }
+
+        set
+        {
+            dist = value;
         }
     }
 }
