@@ -26,7 +26,7 @@ public class DummyProjectileLook : MonoBehaviour {
     {
         if (other.tag != "Player")
         {
-            Debug.Log("DESTROYING: " + other.tag+ "   "+other.gameObject.name);
+
             Destroy(gameObject);
         }
     }
