@@ -34,12 +34,12 @@ public class TargetPointManager : MonoBehaviour {
 	void Start () {
         if (gameObject.transform.parent == null)
         {
-            throw new MissingComponentException("Target Point Manager must be a direct child (object) of the enemy!");
+            throw new MissingComponentException("TargetPointManager must be a direct child (object) of the possible target called \"" + gameObject.name + "\"!");
         }
 
         if (gameObject.transform.parent.gameObject.layer != LayerMask.NameToLayer("Shootable"))
         {
-            Debug.LogWarning("ATTENTION: Layer of enemy is not \"Shootable\"!", gameObject.transform.parent.gameObject);
+            Debug.LogWarning("ATTENTION: Layer of the possible target called \"" + gameObject.transform.parent.gameObject.name + "\" is not \"Shootable\"!", gameObject.transform.parent.gameObject);
         }
 
         // Get all target points on the enemy
@@ -47,7 +47,7 @@ public class TargetPointManager : MonoBehaviour {
 
         if (targets == null || targets.Length == 0)
         {
-            throw new MissingComponentException("Target does not have any TargetPoints!");
+            throw new MissingComponentException("The possible target called \"" + gameObject.transform.parent.gameObject.name + "\" does not have any TargetPoints!");
         }
 
         // Sort the array: First critical target points, then uncritical target points
