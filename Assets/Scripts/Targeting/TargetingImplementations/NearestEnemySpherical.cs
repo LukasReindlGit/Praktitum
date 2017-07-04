@@ -3,58 +3,148 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NearestEnemySpherical : MonoBehaviour
+/// <summary>
+/// Uses an OverlapSphere and viewing angles to get all enemies in sight of the weapon or player.
+/// </summary>
+public class NearestEnemySpherical 
 {
 
+    private LayerMask enemyMask, rayMask;
+    private Vector3 currentPosition, currentDirection;
+    private float sphereRangeToCenter, sphereRadius, playersViewAngle, playersNearViewAngle, immediateProximity;
     
-    public LayerMask enemyMask, rayMask;
-    public float playersViewAngle = 90f;
-    public float playersNearViewAngle = 110f;
-    public float immediateProximity = 15f;
-
+    private GameObject[] sortedEnemies;
     private List<GameObject> result;
     private Collider[] enemies;
-    private bool nearEnemyInView = false;
-    private bool distantEnemyInView = false;
-    private float distanceToEnemy = 0f;
 
-    // Use this for initialization
-    void Start()
+    private bool nearEnemyInView = false, distantEnemyInView = false;
+    private float maxDistance, sqrImmediateProximity, distanceToEnemy, angleToEnemy, distanceToA, distanceToB;
+    private int enemiesLength;
+    private Vector3 rayDirection;
+    private RaycastHit hit;
+
+
+    /// <summary>
+    /// Constructor. Calls the initialization method of the class.
+    /// </summary>
+    /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
+    /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction the weapon or player is looking.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    public NearestEnemySpherical(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle = 4.0f)
     {
-        enemyMask = LayerMask.GetMask("Shootable");
-        rayMask = LayerMask.GetMask("Shootable", "Obstacle");
+        init(enemyLayers, rayMask, position, direction, maxDistance, playersViewAngle, 0.0f, maxDistance / 3.0f);
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    /// <summary>
+    /// Constructor. Calls the initialization method of the class.
+    /// </summary>
+    /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
+    /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction the weapon or player is looking.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="playersNearViewAngle">In the position's immediate proximity: the maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    public NearestEnemySpherical(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle, float playersNearViewAngle = 0.0f)
     {
-        GameObject[] obj = FindObjectsOfType<GameObject>();
-
-        for (int i = 0; i < obj.Length; i++)
-        {
-            if (obj[i].layer == LayerMask.NameToLayer("Shootable"))
-            {
-                obj[i].GetComponent<MeshRenderer>().material.color = Color.gray;
-            }
-        }
-
-        List<GameObject> list = getNearestEnemies(transform.position, transform.forward, 50);
-        for (int i = 0; i < list.Count; i++)
-        {
-            list[i].GetComponent<MeshRenderer>().material.color = Color.red;
-        }
-
-        getTargetEnemy(transform.position, transform.forward, list).GetComponent<MeshRenderer>().material.color = Color.green;
-
+        init(enemyLayers, rayMask, position, direction, maxDistance, playersViewAngle, playersNearViewAngle, maxDistance / 3.0f);
     }
 
-    public List<GameObject> getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
+    /// <summary>
+    /// Constructor. Calls the initialization method of the class.
+    /// </summary>
+    /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
+    /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction the weapon or player is looking.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="playersNearViewAngle">In the position's immediate proximity: the maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="immediateProximity">The maximum possible range the player can see with a bigger angle.</param>
+    public NearestEnemySpherical(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle, float playersNearViewAngle, float immediateProximity)
     {
+        init(enemyLayers, rayMask, position, direction, maxDistance, playersViewAngle, playersNearViewAngle, immediateProximity);
+    }
+
+    /// <summary>
+    /// Initializes all the variables.
+    /// </summary>
+    /// <param name="enemyLayer">All layers of targetable enemies (e.g. "Shootable").</param>
+    /// <param name="rayMask">All layers a raycast could hit. They are needed to check, whether an enemy was hit or not. Obstacles and walls could be possible hideouts for enemies and, therefore, should also be in this mask.</param>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction the weapon or player is looking.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <param name="playersViewAngle">The maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="playersNearViewAngle">In the position's immediate proximity: the maximum angle the enemy position can differ from the viewing direction to be able to see it.</param>
+    /// <param name="immediateProximity">The maximum possible range the player can see with a bigger angle.</param>
+    private void init(LayerMask enemyLayers, LayerMask rayMask, Vector3 position, Vector3 direction, float maxDistance, float playersViewAngle, float playersNearViewAngle, float immediateProximity)
+    {
+        enemyMask = enemyLayers;
+        this.rayMask = rayMask;
+        currentDirection = direction;
+        currentPosition = position;
+        this.playersViewAngle = playersViewAngle;
+        this.playersNearViewAngle = playersNearViewAngle;
+        updateSphereParameters(maxDistance);
+
+        this.immediateProximity = immediateProximity;
+        sqrImmediateProximity = immediateProximity * immediateProximity;
+
+        result = new List<GameObject>();
+        GameHandler.OnGizmoDrawEvent += DrawGizmos; // To draw the gizmos we have to add our method to a monobehaviour event system
+    }
+
+    /// <summary>
+    /// Updates all sphere parameters (radius and range to the center of the sphere). The values depend on the view angles.
+    /// </summary>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    private void updateSphereParameters(float maxDistance)
+    {
+        this.maxDistance = maxDistance;
+
+        if (playersNearViewAngle < 90.0f || playersViewAngle < 90.0f)
+        {
+            sphereRangeToCenter = this.maxDistance / 2.0f;
+            sphereRadius = sphereRangeToCenter;
+        }
+        else
+        {
+            sphereRangeToCenter = 0;
+            sphereRadius = this.maxDistance;
+        }
+    }
+
+    /// <summary>
+    /// Generates a new ordered array filled with all seen enemies from nearest to farthest.
+    /// </summary>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction of the weapon or player.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    public void updateNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
+    {
+        updateSphereParameters(maxDistance);
+        updateNearestEnemies(position, direction);
+    }
+
+    /// <summary>
+    /// Generates a new ordered array filled with all seen enemies from nearest to farthest.
+    /// </summary>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction of the weapon or player.</param>
+    public void updateNearestEnemies(Vector3 position, Vector3 direction)
+    {
+        currentPosition = position;
+        currentDirection = direction;
+
         // Search for all enemies in a sphere around the weapon
-        enemies = Physics.OverlapSphere(position, maxDistance, enemyMask);
+        enemies = Physics.OverlapSphere(position + new Vector3(direction.x, 0, direction.z) * sphereRangeToCenter, sphereRadius, enemyMask);
+        enemiesLength = (enemies != null) ? enemies.Length : 0;
 
-        List<GameObject> result = new List<GameObject>();
-        for (int i = 0; i < enemies.Length; i++)
+        result.Clear();
+        for (int i = 0; i < enemiesLength; i++)
         {
             // Get all enemies in Sight
             if (enemyInSight(enemies[i].gameObject, position, direction))
@@ -62,50 +152,167 @@ public class NearestEnemySpherical : MonoBehaviour
                 result.Add(enemies[i].gameObject);
             }
         }
-        return result;
+
+        // Orders enemies from nearest to farthest
+        result.Sort(delegate (GameObject a, GameObject b) {
+            distanceToA = (a.transform.position - position).sqrMagnitude;
+            distanceToB = (b.transform.position - position).sqrMagnitude;
+            if (distanceToA > distanceToB)
+            {
+                return 1;
+            }
+            else if (distanceToA < distanceToB)
+            {
+                return -1;
+            }
+            else
+            {
+                return 0;
+            }
+        });
+
+        sortedEnemies = result.ToArray();
     }
 
+    /// <summary>
+    /// Returns a new ordered array filled with all seen enemies from nearest to farthest.
+    /// </summary>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction of the weapon or player.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <returns>A new ordered array filled with all seen enemies from nearest to farthest.</returns>
+    public GameObject[] getNearestEnemies(Vector3 position, Vector3 direction, float maxDistance)
+    {
+        updateNearestEnemies(position, direction, maxDistance);
+        return getNearestEnemies();
+    }
+
+    /// <summary>
+    /// Returns a new ordered array filled with all seen enemies from nearest to farthest.
+    /// </summary>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction of the weapon or player.</param>
+    /// <returns>A new ordered array filled with all seen enemies from nearest to farthest.</returns>
+    public GameObject[] getNearestEnemies(Vector3 position, Vector3 direction)
+    {
+        updateNearestEnemies(position, direction);
+        return getNearestEnemies();
+    }
+
+    /// <summary>
+    /// Returns the ordered array filled with all seen enemies from nearest to farthest.
+    /// </summary>
+    /// <returns>The ordered array filled with all seen enemies from nearest to farthest.</returns>
+    public GameObject[] getNearestEnemies()
+    {
+        return sortedEnemies;
+    }
+
+    /// <summary>
+    /// Updates and returns the current target enemy.
+    /// </summary>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction of the weapon or player.</param>
+    /// <param name="maxDistance">The maximum possible range from the own position to a possible target.</param>
+    /// <returns>The updated current target enemy.</returns>
     public GameObject getTargetEnemy(Vector3 position, Vector3 direction, float maxDistance)
     {
-        List<GameObject> listOfEnemies = getNearestEnemies(position, direction, maxDistance);
-        return getTargetEnemy(position, direction, listOfEnemies);
+        getNearestEnemies(position, direction, maxDistance);
+        return getTargetEnemy();
     }
 
-    public GameObject getTargetEnemy(Vector3 position, Vector3 direction, List<GameObject> listOfEnemies)
+    /// <summary>
+    /// Updates and returns the current target enemy.
+    /// </summary>
+    /// <param name="position">The current position of the weapon or player.</param>
+    /// <param name="direction">The current direction of the weapon or player.</param>
+    /// <returns>The updated current target enemy.</returns>
+    public GameObject getTargetEnemy(Vector3 position, Vector3 direction)
     {
-        GameObject result = (listOfEnemies.Count > 0) ? listOfEnemies[0] : null;
-        float distance = (result != null) ? Vector3.Distance(position, result.transform.position) : 0f;
-        float newDistance = 0f;
+        getNearestEnemies(position, direction);
+        return getTargetEnemy();
+    }
 
-        for (int i = 1; i < listOfEnemies.Count; i++)
+    /// <summary>
+    /// Returns the current target enemy.
+    /// </summary>
+    /// <returns>The current target enemy in the sorted array of all seen enemies.</returns>
+    public GameObject getTargetEnemy()
+    {
+        return (sortedEnemies != null && sortedEnemies.Length > 0) ? sortedEnemies[0] : null;
+    }
+
+    /// <summary>
+    /// Checks, whether an enemy is in sight or not.
+    /// </summary>
+    /// <param name="enemy">The enemy you want to check.</param>
+    /// <param name="ownPosition">The own position of the weapon or player.</param>
+    /// <param name="ownDirection">The own viewing direction of the weapon or player.</param>
+    /// <returns>True or false, whether the enemy is in sight or not.</returns>
+    private bool enemyInSight(GameObject enemy, Vector3 ownPosition, Vector3 ownDirection)
+    {
+        rayDirection = enemy.transform.position - ownPosition;
+        distanceToEnemy = (ownPosition - enemy.transform.position).sqrMagnitude;
+        angleToEnemy = Vector2.Angle(new Vector2(rayDirection.x, rayDirection.z), new Vector2(ownDirection.x, ownDirection.z));
+
+        nearEnemyInView = angleToEnemy <= playersNearViewAngle && distanceToEnemy <= sqrImmediateProximity;
+        distantEnemyInView = angleToEnemy <= playersViewAngle;
+
+        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, maxDistance, rayMask))
         {
-            newDistance = Vector3.Distance(position, listOfEnemies[i].transform.position);
-            if (newDistance < distance)
+            if (hit.collider.gameObject == enemy)
             {
-                distance = newDistance;
-                result = listOfEnemies[i];
+                return true;
             }
         }
 
-        return result;
+        return false;
     }
 
-    private bool enemyInSight(GameObject enemy, Vector3 ownPosition, Vector3 ownDirection)
+    /// <summary>
+    /// Draws the WireSphere (red), viewing angles (cyan and green), and marks the seen enemies (red cubes) as well as the current main target (green cube).
+    /// </summary>
+    private void DrawGizmos()
     {
-        RaycastHit hit;
-        Vector3 rayDirection = enemy.transform.position - ownPosition;
-        distanceToEnemy = Vector3.Distance(ownPosition, enemy.transform.position);
+        // Sphere
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(currentPosition + currentDirection * sphereRangeToCenter, sphereRadius);
 
-        nearEnemyInView = Vector3.Angle(rayDirection, ownDirection) <= playersNearViewAngle
-                       && distanceToEnemy <= immediateProximity;
-        distantEnemyInView = Vector3.Angle(rayDirection, ownDirection) <= playersViewAngle;
+        // Local Z-Axis (View-Axis)
+        Gizmos.color = Color.blue;
+        Vector3 distPos = currentPosition + currentDirection * maxDistance;
+        Gizmos.DrawLine(currentPosition, distPos);
 
-        if ((nearEnemyInView || distantEnemyInView) && Physics.Raycast(ownPosition, rayDirection, out hit, distanceToEnemy * 2, rayMask))
+        // Full View Angle
+        Vector3 distPosRight = Quaternion.Euler(0, playersViewAngle, 0) * (distPos - currentPosition) + currentPosition;
+        Vector3 distPosLeft = Quaternion.Euler(0, -playersViewAngle, 0) * (distPos - currentPosition) + currentPosition;
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(currentPosition, distPosRight);
+        Gizmos.DrawLine(currentPosition, distPosLeft);
+        Gizmos.DrawLine(distPosLeft, distPosRight);
+
+        // Proximity View Angle
+        Vector3 distPosNear = currentPosition + currentDirection * immediateProximity;
+        Vector3 distPosNearRight = Quaternion.Euler(0, playersNearViewAngle, 0) * (distPosNear - currentPosition) + currentPosition;
+        Vector3 distPosNearLeft = Quaternion.Euler(0, -playersNearViewAngle, 0) * (distPosNear - currentPosition) + currentPosition;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(currentPosition, distPosNearRight);
+        Gizmos.DrawLine(currentPosition, distPosNearLeft);
+        Gizmos.DrawLine(distPosNearLeft, distPosNearRight);
+
+        // Mark enemies (green = target, red = other seen enemies)
+        int length = (sortedEnemies != null) ? sortedEnemies.Length : 0;
+        for (int i = 0; i < length; i++)
         {
-            if (hit.collider.gameObject == enemy)
-                return true;
+            if (i != 0)
+            {
+                Gizmos.color = Color.red;
+            } else
+            {
+                Gizmos.color = Color.green;
+            }
+            
+            Gizmos.DrawWireCube(sortedEnemies[i].transform.position, sortedEnemies[i].GetComponent<Renderer>().bounds.size);
         }
-
-        return false;
     }
 }

@@ -13,16 +13,29 @@ namespace Weapons
         [SerializeField]
         private AudioClip shootSound;
 
+        [SerializeField]
+        private AudioClip reloadSound;
+        
+
         private void OnEnable()
         {
             parentWeapon = GetComponent<WeaponBehaviour>();
             parentWeapon.FiredShot += ParentWeapon_FiredShot;
+            parentWeapon.StartedReload += ParentWeapon_StartedReload;
 
         }
+
+        
 
         private void OnDisable()
         {
             parentWeapon.FiredShot -= ParentWeapon_FiredShot;
+            parentWeapon.StartedReload -= ParentWeapon_StartedReload;
+        }
+
+        private void ParentWeapon_StartedReload(WeaponBehaviour weapon)
+        {
+            StartCoroutine(InstantiateSound(reloadSound));
         }
 
         private void ParentWeapon_FiredShot(WeaponBehaviour weapon)
@@ -33,6 +46,11 @@ namespace Weapons
 
         private IEnumerator InstantiateSound(AudioClip clip)
         {
+            if(clip==null)
+            {
+                yield return null;
+            }
+
             GameObject g = new GameObject();
             g.transform.position = transform.position;
             AudioSource auSou = g.AddComponent<AudioSource>();

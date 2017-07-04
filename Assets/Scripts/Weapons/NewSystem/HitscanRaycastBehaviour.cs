@@ -24,11 +24,16 @@ namespace Weapons
 
         private void UpdateTargets(WeaponBehaviour weapon)
         {
+            if (availableTargets == null)
+                return;
+
             availableTargets.Clear();
-            foreach(var a in targetingSystem.GetTargets(transform.forward, param.CriticalChance, param.Accuracy, param.SalveCount, param.Precision))
+
+            foreach (var a in targetingSystem.GetTargets(transform.position, transform.forward, param))
             {
                 availableTargets.Add(a);
             }
+
         }
 
         public override void PerformShoot()
@@ -41,7 +46,7 @@ namespace Weapons
             else
             {
                 // Shoot at first target in list.
-                
+
                 Vector3 direction = (availableTargets[0].TargetPos - transform.position).normalized;
                 ShootDamagingRay(transform.position, direction);
 

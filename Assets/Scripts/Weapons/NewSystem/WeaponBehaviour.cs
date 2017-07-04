@@ -7,10 +7,10 @@ namespace Weapons
 {
     public abstract class WeaponBehaviour : MonoBehaviour
     {
+        public enum WeaponState { IDLE, LOADING, COOLDOWN, RELOADING }
+
         public delegate void WeaponEvent(WeaponBehaviour weapon);
-
         public delegate void WeaponHitEvent(WeaponBehaviour weapon, RaycastHit hit, Vector3 cameFromDir);
-
         public delegate void WeaponShotEvent(WeaponBehaviour weapon, Vector3 origin, Vector3 direction);
 
         #region Variables
@@ -29,6 +29,10 @@ namespace Weapons
         private bool readyToShoot = true;
 
         private float timeStampLastTryShot;
+
+        
+        private WeaponState state = WeaponState.IDLE;
+        public WeaponState State { get { return state; } }
 
         #endregion
 
@@ -75,15 +79,25 @@ namespace Weapons
             if (Input.GetKeyUp(debugShootKey))
             {
                 isPressingButton = false;
-                isWaitingForRelease = false;
+                //isWaitingForRelease = false;
+                TryAbort();
+            }
+        }
+
+        private void TryAbort()
+        {
+            if(state == WeaponState.LOADING || state == WeaponState.IDLE)
+            {
+                state = WeaponState.IDLE;
+                StopAllCoroutines();
             }
         }
 
         private void TryShoot()
         {
-            if (readyToShoot)
+            if (state == WeaponState.IDLE)
             {
-                timeStampLastTryShot = Time.time;
+                //timeStampLastTryShot = Time.time;
                 StartCoroutine(ShootLoop(timeStampLastTryShot));
             }
         }
@@ -94,14 +108,15 @@ namespace Weapons
             {
                 #region Load the shot
 
-                
                 // Fire event StartedLoading
+                state = WeaponState.LOADING;
                 if (StartedLoading != null) StartedLoading.Invoke(this);
-
+                
                 // Wait loadingTime
                 yield return new WaitForSeconds(param.LoadingTime);
 
                 // Fire event FinishedLoading
+                state = WeaponState.IDLE;
                 if (FinishedLoading != null) FinishedLoading.Invoke(this);
 
                 readyToShoot = false;
@@ -109,13 +124,15 @@ namespace Weapons
                 #endregion
 
                 // Check if we aborted the loading by releasing or repressing
-                if (!isPressingButton || timeStampLastTryShot != timeStamp)
-                {
-                    // Fire event Aborted
-                    if (AbortedLoading != null) AbortedLoading.Invoke(this);
-                    yield break;
-                }
-                isWaitingForRelease = true;
+                //if (!isPressingButton || timeStampLastTryShot != timeStamp)
+                //{
+                //    // Fire event Aborted
+                //    if (AbortedLoading != null) AbortedLoading.Invoke(this);
+                //    yield break;
+                //}
+                //isWaitingForRelease = true;
+
+                if (StartedSalve != null) StartedSalve.Invoke(this);
 
                 // Shoot each shot of the salve
                 for (int i = param.SalveCount; i > 0; i--)
@@ -126,13 +143,16 @@ namespace Weapons
 
                     // Fire event StartedCooldown
                     if (StartedCooldown != null) StartedCooldown.Invoke(this);
-                    
+
                     // Wait the cooldown time
+                    state = WeaponState.COOLDOWN;
                     yield return new WaitForSeconds(param.CooldownTime);
 
+                    state = WeaponState.IDLE;
                     // Fire event FinishedCooldown
                     if (FinishedCooldown != null) FinishedCooldown.Invoke(this);
                 }
+                if (FinishedSalve != null) FinishedSalve.Invoke(this);
 
                 // Use ammo from the clip
                 currentClip--;
@@ -142,12 +162,14 @@ namespace Weapons
                 {
 
                     // Fire event StartedReload
+                    state = WeaponState.RELOADING;
                     if (StartedReload != null) StartedReload.Invoke(this);
 
                     yield return new WaitForSeconds(param.ReloadTime);
                     currentClip = param.ClipSize;
 
                     // Fire event FinishedReload
+                    state = WeaponState.IDLE;
                     if (FinishedReload != null) FinishedReload.Invoke(this);
                 }
                                 

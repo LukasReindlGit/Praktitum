@@ -2,15 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Weapons;
 
 public class TestTargetingSystem : TargetingSystem
 {
-    public override Target[] GetTargets(Vector3 direction, float criticalChance, float streuwert, int shotcount, float precision)
+
+    public override Target[] GetTargets(Vector3 position, Vector3 direction, Parameters parameters)
     {
-        throw new NotImplementedException();
+        return null;
     }
 
-    public override void UpdateTargetGUI(Vector3 position, Vector3 direction)
+    public override void UpdateTargetSystem(Vector3 position, Vector3 direction)
     {
         //throw new NotImplementedException();
     }
