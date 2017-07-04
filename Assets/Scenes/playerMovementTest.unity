@@ -2104,7 +2104,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -1356101026
+  randomSeed: -206467671
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7819,6 +7819,12 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 114141176660350590, guid: 59bcca1037de17f4382eacd0ed2976d8,
+        type: 2}
+      propertyPath: ObjectToSpawn
+      value: 
+      objectReference: {fileID: 1520565826494832, guid: 4ce94ff8b5d2bb644a3b0297cd486869,
+        type: 2}
     m_RemovedComponents:
     - {fileID: 114298022581810178, guid: 59bcca1037de17f4382eacd0ed2976d8, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: 59bcca1037de17f4382eacd0ed2976d8, type: 2}
@@ -7847,7 +7853,7 @@ MonoBehaviour:
   debugShootKey: 13
   param:
     isContinuousFire: 0
-    salveCount: 3
+    salveCount: 4
     cooldownTime: 0.05
     clipSize: 30
     reloadTime: 1
