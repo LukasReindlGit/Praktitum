@@ -13,7 +13,7 @@ namespace Weapons
         public override void Init()
         {
             base.Init();
-            targetingSystem = new TestTargetingSystem();
+            targetingSystem = new HitScanTargeting(this);
             StartedSalve += UpdateTargets;
         }
 

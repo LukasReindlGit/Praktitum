@@ -22,7 +22,8 @@ GameObject:
   - component: {fileID: 114974787774258312}
   - component: {fileID: 114141176660350590}
   - component: {fileID: 114286919224054934}
-  - component: {fileID: 114298022581810178}
+  - component: {fileID: 114975290137667490}
+  - component: {fileID: 114020218183937380}
   m_Layer: 8
   m_Name: Rifle
   m_TagString: Untagged
@@ -43,6 +44,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114020218183937380
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1107031223915414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5306cd20b5a7e0f4b901ae1fe503fe7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugShootKey: 13
+  param:
+    isContinuousFire: 0
+    salveCount: 4
+    cooldownTime: 0.05
+    clipSize: 30
+    reloadTime: 1
+    range: 10
+    damage: 1
+    loadingTime: 0
+    criticalChance: 0.1
+    precision: 0.75
+    accuracy: 0.5
+    angle: 2
 --- !u!114 &114141176660350590
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -54,7 +80,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bb831a873d623247a75c64c622ef739, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjectToSpawn: {fileID: 0}
+  ObjectToSpawn: {fileID: 1520565826494832, guid: 4ce94ff8b5d2bb644a3b0297cd486869,
+    type: 2}
 --- !u!114 &114286919224054934
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -66,36 +93,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfaa4f3653e622b4cbd456f2891ee746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjectToSpawn: {fileID: 1012635350648270, guid: 2303df9953f156d4a94eadf85eb3f57b,
-    type: 2}
+  ObjectsToSpawn:
+  - {fileID: 1012635350648270, guid: 2303df9953f156d4a94eadf85eb3f57b, type: 2}
   spawnAsChild: 1
---- !u!114 &114298022581810178
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1107031223915414}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dddea19d322db0b43a732bbcf58fc7d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debugShootKey: 13
-  param:
-    isContinuousFire: 1
-    salveCount: 3
-    cooldownTime: 0.2
-    clipSize: 1
-    reloadTime: 3
-    range: 10
-    damage: 1
-    loadingTime: 0
-    criticalChance: 0.1
-    precision: 0.75
-    accuracy: 0.5
-    angle: 90
-  projectile: {fileID: 1176124900967904, guid: 26e399c8ae4b59f468aac8faa929f44c, type: 2}
-  availableTargets: []
 --- !u!114 &114974787774258312
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -109,3 +109,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shootSound: {fileID: 8300000, guid: 6c2323aab2ab2604ea7661aaf4e7d199, type: 3}
   reloadSound: {fileID: 0}
+--- !u!114 &114975290137667490
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1107031223915414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfaa4f3653e622b4cbd456f2891ee746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObjectsToSpawn:
+  - {fileID: 1774951583464532, guid: 75dcf4e83838843449f6a3ad7042416c, type: 2}
+  spawnAsChild: 0
