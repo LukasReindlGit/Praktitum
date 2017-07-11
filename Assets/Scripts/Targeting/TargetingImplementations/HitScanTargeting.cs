@@ -32,22 +32,23 @@ public class HitScanTargeting : TargetingSystem
     {
         if (parameters.SalveCount <= 0)
         {
-            return null;
+            Debug.LogWarning("ATTENTION: The SalveCount parameter of the weapon called \"" + weapon.gameObject.name + "\" is less than or equal to 0. Must be at least 1 or higher!", weapon.gameObject);
+            return new Target[] { };
         }
-        Target[] targets = new Target[parameters.SalveCount];
-        int length = targets.Length;
 
         target = system.getTargetEnemy();
-
         if (target == null)
         {
-            return null;
+            return new Target[] { };
         }
+
+        Target[] targets = new Target[parameters.SalveCount];
+        int length = targets.Length;
 
         targetPointManager = target.GetComponentInChildren<TargetPointManager>();
         if (targetPointManager == null)
         {
-            throw new MissingComponentException("Target does not have any TargetPointManager!");
+            throw new MissingComponentException("Target called \"" + target.gameObject.name + "\" does not have any TargetPointManager!");
         }
 
         List<TargetPoint> copiedPoints;
@@ -94,7 +95,8 @@ public class HitScanTargeting : TargetingSystem
             }
             else if (copiedPointsLength == 0)
             {
-                break;
+                Debug.LogWarning("ATTENTION: Cannot target any TargetPoint on the target called \"" + target.gameObject.name + "\" (no available TargetPoint is visible). Targets should have available TargetPoints in every direction!", target.gameObject);
+                return new Target[] { };
             }
             else
             {

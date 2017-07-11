@@ -32,12 +32,22 @@ public class TargetPointManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        if (gameObject.transform.parent == null)
+        {
+            throw new MissingComponentException("TargetPointManager must be a direct child (object) of the possible target called \"" + gameObject.name + "\"!");
+        }
+
+        if (gameObject.transform.parent.gameObject.layer != LayerMask.NameToLayer("Shootable"))
+        {
+            Debug.LogWarning("ATTENTION: Layer of the possible target called \"" + gameObject.transform.parent.gameObject.name + "\" is not \"Shootable\"!", gameObject.transform.parent.gameObject);
+        }
+
         // Get all target points on the enemy
         targets = transform.parent.gameObject.GetComponentsInChildren<TargetPoint>();
 
         if (targets == null || targets.Length == 0)
         {
-            throw new MissingComponentException("Target does not have any TargetPoints!");
+            throw new MissingComponentException("The possible target called \"" + gameObject.transform.parent.gameObject.name + "\" does not have any TargetPoints!");
         }
 
         // Sort the array: First critical target points, then uncritical target points
@@ -58,9 +68,22 @@ public class TargetPointManager : MonoBehaviour {
 
         // Assign this manager script to all target points and initialize critical count
         int targetsLength = targets.Length;
+
         for (int i = 0; i < targetsLength; i++)
         {
             targets[i].setTargetPointManager(this);
+
+            var c = targets[i].GetComponent<Collider>();
+            if (c != null)
+            {
+                c.enabled = false;
+            }
+
+            var mr = targets[i].GetComponent<MeshRenderer>();
+            if (mr != null)
+            {
+                mr.enabled = false;
+            }
 
             if (targets[i].critical)
             {
