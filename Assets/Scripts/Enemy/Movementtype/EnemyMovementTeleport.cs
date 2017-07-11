@@ -6,10 +6,10 @@ using UnityEngine.AI;
 public class EnemyMovementTeleport : Movementtype {
 
     [SerializeField]
-    protected float distance; //Distance from player
+    protected float distance = 8; //Distance from player
 
     [SerializeField]
-    protected float teleportCD; //teleportcooldown
+    protected float teleportCD = 3; //teleportcooldown
 
     protected Vector3 newPos;
 
@@ -17,17 +17,32 @@ public class EnemyMovementTeleport : Movementtype {
     {
         if (active)
         {
-            // get random point in radius "distance" from player
-            newPos = RandomNavSphere(target.position, distance, NavMesh.AllAreas);
-            //start tp animation in destination and origin
-            //TODO
-            //teleport there after cooldown "teleportCD"
-
-            //enable attack
-            //when player runs out of atack range -> conditon
-            //teleport again
+            teleport();
+            Debug.Log("TELEPORTED");
+            Activate();
         }
     }
 
-    
+    IEnumerator WaitCD()
+    {
+        yield return new WaitForSeconds(teleportCD);
+    }
+
+    protected void teleport()
+    {
+        // get random point in radius "distance" from player
+        newPos = RandomNavSphere(target.position, distance, NavMesh.AllAreas);
+        //start tp animation in destination and origin
+        //TODO
+        // Wait the defined amount of time
+        StartCoroutine(WaitCD());
+        //teleport there after cooldown "teleportCD"
+        gameObject.transform.position = newPos;
+        //enable attack
+        //TODO
+        //when player runs out of atack range -> conditon
+        //teleport again
+    }
+
+
 }
