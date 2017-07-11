@@ -314,13 +314,13 @@ public class NearestEnemySpherical
     /// <param name="q1">Vector to the start point of q.</param>
     /// <param name="q2">Vector to the end point of q.</param>
     /// <returns>True, if an intersection was found.</returns>
-    public static bool lineSegementsIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2)
+    public bool lineSegementsIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2)
     {
         var s10 = p2 - p1;
         var s32 = q2 - q1;
 
         var denom = s10.x * s32.y - s32.x * s10.y;
-        if (denom == 0)
+        if (FloatIsZero(denom))
         {
             return false;
         }
@@ -351,6 +351,16 @@ public class NearestEnemySpherical
         // var intersection = new Vector2(p1.x + (t * s10.x), p1.y + (t * s10.y));
 
         return true;
+    }
+
+    public bool FloatIsZero(float value)
+    { 
+        if ((value < Mathf.Epsilon) && (value > -Mathf.Epsilon))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
