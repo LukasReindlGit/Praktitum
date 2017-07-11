@@ -21,10 +21,10 @@ public class TargetPoint : MonoBehaviour
 
     public void Start()
     {
-        /*var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        a.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-        for (int i = 0; i < 30; i++)
-            Instantiate(a, getRandomHitPointOnSurface(0.5f), Quaternion.identity);*/
+        //var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //a.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        //for (int i = 0; i < 50; i++)
+        //    Instantiate(a, getRandomHitPointOnSurface(0.5f), Quaternion.identity);
     }
 
     public void setTargetPointManager(TargetPointManager manager)
@@ -90,14 +90,22 @@ public class TargetPoint : MonoBehaviour
     public Vector3 getRandomHitPointOnSurface(float precision = 1.0f)
     {
         precision = 1.0f - precision;
-        precision = (precision <= 0.1f) ? 0.1f : precision;
+        precision = (precision <= 0.01f) ? 0.01f : precision;
         switch (primitiveType)
         {
             case PrimitiveTypes.cuboid:
                 return transform.TransformPoint((UnityEngine.Random.value - 0.5f) * precision, (UnityEngine.Random.value - 0.5f) * precision, 0);
             case PrimitiveTypes.circle:
-                Vector2 random = UnityEngine.Random.insideUnitCircle;
-                return transform.TransformPoint(random * precision);
+                double a = UnityEngine.Random.value;
+                double b = UnityEngine.Random.value;
+                if (b < a) {
+                    var temp = b;
+                    b = a;
+                    a = temp;
+                }
+                var newPointX = b * precision * Math.Cos(2 * Math.PI * a / b);
+                var newPointY = b * precision * Math.Sin(2 * Math.PI * a / b);
+                return transform.TransformPoint((float) newPointX, (float) newPointY, 0);
             default:
                 return transform.position;
         }
