@@ -34,7 +34,7 @@ public class EnemyMovementRandomWalk : EnemyMovementWalk {
 
                 if (timer >= wanderTimer)
                 {
-                    setNewDestination();
+                    setNewDestination(wanderRadius);
                     timer = 0;
                 }
                 return;
@@ -42,28 +42,11 @@ public class EnemyMovementRandomWalk : EnemyMovementWalk {
 
             if (Vector3.Distance(transform.position, agent.destination) <= Dist)
             {
-                setNewDestination();
+                setNewDestination(wanderRadius);
             }
         }
 
 
     }
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask)
-    {
-        Vector3 randDirection = Random.insideUnitSphere * dist;
-
-        randDirection += origin;
-
-        NavMeshHit navHit;
-
-        NavMesh.SamplePosition(randDirection, out navHit, dist, layermask);
-
-        return navHit.position;
-    }
-
-    private void setNewDestination()
-    {
-        Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, NavMesh.AllAreas);
-        agent.SetDestination(newPos);
-    }
+    
 }

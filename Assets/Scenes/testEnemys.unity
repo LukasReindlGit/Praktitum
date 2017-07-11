@@ -240,7 +240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 990207174}
-  activateablesObject: {fileID: 0}
+  activateables: []
   onlyOnce: 1
 --- !u!135 &142951210
 SphereCollider:
@@ -1087,7 +1087,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &858604709
 Transform:
   m_ObjectHideFlags: 0
@@ -1603,6 +1603,8 @@ GameObject:
   - component: {fileID: 1290803083}
   - component: {fileID: 1290803082}
   - component: {fileID: 1290803081}
+  - component: {fileID: 1290803087}
+  - component: {fileID: 1290803088}
   m_Layer: 0
   m_Name: dummyEnmy
   m_TagString: Untagged
@@ -1716,8 +1718,39 @@ Transform:
   - {fileID: 1885630244}
   - {fileID: 858604709}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1290803087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1290803080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc9717e23257f3e4cbf844b3d5ea5f06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 990207179}
+  speed: 10
+  dist: 5
+  byTime: 0
+  wanderTimer: 7
+  wanderRadius: 40
+--- !u!114 &1290803088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1290803080}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70878a02c17262b42bb708b448410600, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 990207179}
+  speed: 5
+  dist: 10
 --- !u!1 &1418364114
 GameObject:
   m_ObjectHideFlags: 0
@@ -2029,7 +2062,7 @@ Transform:
   - {fileID: 1915945243}
   - {fileID: 213325992}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1691694014
 GameObject:

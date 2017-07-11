@@ -1,16 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class EnemyMovementTeleport : MonoBehaviour {
+public class EnemyMovementTeleport : Movementtype {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    [SerializeField]
+    protected float distance; //Distance from player
+
+    [SerializeField]
+    protected float teleportCD; //teleportcooldown
+
+	//summary:
+    // get random point in radius "distance" from player
+    //teleport there after cooldown "teleportCD"
+    //enable attack
+    //when player runs out of atack range -> conditon
+    //teleport again
 }

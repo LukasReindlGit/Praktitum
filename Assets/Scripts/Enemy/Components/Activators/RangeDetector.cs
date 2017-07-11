@@ -8,7 +8,7 @@ namespace AI.Component
     public class RangeDetector : Activator
     {
         [SerializeField]
-        GameObject target;
+        String target;
 
         [SerializeField]
         MonoBehaviour[] activateables;
@@ -20,7 +20,6 @@ namespace AI.Component
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("look guests");
 
             if (onlyOnce && activated)
             {
@@ -28,7 +27,7 @@ namespace AI.Component
                 return;
             }
 
-            if (other.gameObject == target)
+            if (other.gameObject.tag == target)
             {
                 ActivateAllTargets();
 

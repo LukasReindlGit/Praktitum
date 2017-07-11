@@ -16,15 +16,13 @@ public class EnemyMovementWalk : Movementtype {
     [SerializeField]
     private float dist = 0.5f;
 
-    [SerializeField]
-
 
     // Use this for initialization
     virtual protected void Start()
     {
-        Activate();
+        //Activate();
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = Speed;
+        agent.speed = speed;
     }
 
     // Update is called once per frame
