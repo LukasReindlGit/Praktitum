@@ -320,22 +320,22 @@ public class NearestEnemySpherical
         var s32 = q2 - q1;
 
         var denom = s10.x * s32.y - s32.x * s10.y;
-        if (FloatIsZero(denom))
+        if (floatIsZero(denom))
         {
             return false;
         }
-        var denomPositive = denom > 0;
+        var denomPositive = denom >= Mathf.Epsilon; //Mathf.Epsilon == 0 + float tolerance
 
         var s02 = p1 - q1;
         var s_numer = s10.x * s02.y - s10.y * s02.x;
-        if ((s_numer < 0) == denomPositive)
+        if ((s_numer <= -Mathf.Epsilon) == denomPositive)
         {
             return false;
         }
 
 
         var t_numer = s32.x * s02.y - s32.y * s02.x;
-        if ((t_numer < 0) == denomPositive)
+        if ((t_numer <= -Mathf.Epsilon) == denomPositive)
         {
             return false;
         }
@@ -347,13 +347,13 @@ public class NearestEnemySpherical
         }
 
         // Intersection point
-        // var t = t_numer / denom;
-        // var intersection = new Vector2(p1.x + (t * s10.x), p1.y + (t * s10.y));
+        //var t = t_numer / denom;
+        //var intersection = new Vector2(p1.x + (t * s10.x), p1.y + (t * s10.y));
 
         return true;
     }
 
-    public bool FloatIsZero(float value)
+    private bool floatIsZero(float value)
     { 
         if ((value < Mathf.Epsilon) && (value > -Mathf.Epsilon))
         {
