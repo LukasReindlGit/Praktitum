@@ -5,7 +5,9 @@ Shader "Projector/Light2" {
 	Properties {
 		_Color ("Main Color", Color) = (1,1,1,1)
 		_ShadowTex ("Cookie", 2D) = "" {}
-		_FalloffTex ("FallOff", 2D) = "" {}
+	_FalloffTex("FallOff", 2D) = "" {}
+	_ExtraLight("ExtraLight", 2D) = "black" {}
+	_LightFactor("lightFactor", Range(0, 2)) = 1
 	}
 	
 	Subshader {
@@ -25,6 +27,7 @@ Shader "Projector/Light2" {
 			struct v2f {
 				float4 uvShadow : TEXCOORD0;
 				float4 uvFalloff : TEXCOORD1;
+				float4 uvExtraLight: TEXCOORD2;
 				UNITY_FOG_COORDS(2)
 				float4 pos : SV_POSITION;
 			};
@@ -45,16 +48,28 @@ Shader "Projector/Light2" {
 			fixed4 _Color;
 			sampler2D _ShadowTex;
 			sampler2D _FalloffTex;
+			sampler2D _ExtraLight;
+			float _LightFactor;
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
 				fixed4 texS = tex2Dproj (_ShadowTex, UNITY_PROJ_COORD(i.uvShadow));
+						
 				texS.rgb *= _Color.rgb;
-				texS.a = 1.0-texS.a;
+				
+/*
+				texS.r = texS.r + texS.a;
+				texS.g = texS.g + texS.a*0.2;
+				texS.b = texS.b + texS.a*0.2;*/
 	
+				texS.a = 1.0 - texS.a;
+
 				fixed4 texF = tex2Dproj (_FalloffTex, UNITY_PROJ_COORD(i.uvFalloff));
-				fixed4 res = saturate( texS);// *texF.a;
+				fixed4 res = saturate( texS*2) *texF.a;
 				res.a = 1;
+
+				res.rgb += tex2Dproj(_ExtraLight, UNITY_PROJ_COORD(i.uvShadow))*_LightFactor;
+
 				UNITY_APPLY_FOG_COLOR(i.fogCoord, res, fixed4(0,0,0,0));
 				return res;
 			}
