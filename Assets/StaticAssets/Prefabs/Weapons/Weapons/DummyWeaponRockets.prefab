@@ -67,7 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9adf6f749c42a145889e6c96d6843c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugShootKey: 13
+  debugShootKey: 0
   param:
     isContinuousFire: 1
     salveCount: 3
@@ -105,6 +105,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfaa4f3653e622b4cbd456f2891ee746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjectToSpawn: {fileID: 1012635350648270, guid: 2303df9953f156d4a94eadf85eb3f57b,
-    type: 2}
+  ObjectsToSpawn: []
   spawnAsChild: 1
