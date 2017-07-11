@@ -30,7 +30,6 @@ namespace Weapons
 
         private float timeStampLastTryShot;
 
-        private Quaternion rotationBackup;
         
         private WeaponState state = WeaponState.IDLE;
         public WeaponState State { get { return state; } }
@@ -73,24 +72,14 @@ namespace Weapons
         {
             if (Input.GetKeyDown(debugShootKey))
             {
-                SetKeyPressed(true);
+                isPressingButton = true;
+                TryShoot();
             }
 
             if (Input.GetKeyUp(debugShootKey))
             {
-                SetKeyPressed(false);
-            }
-        }
-
-        public void SetKeyPressed(bool value)
-        {
-            isPressingButton = value;
-            if (value)
-            {
-                TryShoot();
-            }
-            else
-            {
+                isPressingButton = false;
+                //isWaitingForRelease = false;
                 TryAbort();
             }
         }
@@ -133,18 +122,24 @@ namespace Weapons
                 readyToShoot = false;
 
                 #endregion
-                               
+
+                // Check if we aborted the loading by releasing or repressing
+                //if (!isPressingButton || timeStampLastTryShot != timeStamp)
+                //{
+                //    // Fire event Aborted
+                //    if (AbortedLoading != null) AbortedLoading.Invoke(this);
+                //    yield break;
+                //}
+                //isWaitingForRelease = true;
+
                 if (StartedSalve != null) StartedSalve.Invoke(this);
 
                 // Shoot each shot of the salve
                 for (int i = param.SalveCount; i > 0; i--)
                 {
-
-                    rotationBackup = transform.rotation;
-                    PerformShoot();
                     // Fire event FiredShot
                     if (FiredShot != null) FiredShot.Invoke(this);
-                    transform.rotation = rotationBackup;
+                    PerformShoot();                    
 
                     // Fire event StartedCooldown
                     if (StartedCooldown != null) StartedCooldown.Invoke(this);
@@ -165,6 +160,7 @@ namespace Weapons
                 // Reload if needed
                 if (currentClip <= 0)
                 {
+
                     // Fire event StartedReload
                     state = WeaponState.RELOADING;
                     if (StartedReload != null) StartedReload.Invoke(this);

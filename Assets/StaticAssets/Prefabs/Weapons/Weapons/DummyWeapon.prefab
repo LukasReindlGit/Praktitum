@@ -80,7 +80,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfaa4f3653e622b4cbd456f2891ee746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjectsToSpawn: []
+  ObjectToSpawn: {fileID: 1012635350648270, guid: 2303df9953f156d4a94eadf85eb3f57b,
+    type: 2}
   spawnAsChild: 1
 --- !u!114 &114495547620238784
 MonoBehaviour:
@@ -93,7 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5306cd20b5a7e0f4b901ae1fe503fe7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugShootKey: 0
+  debugShootKey: 13
   param:
     isContinuousFire: 0
     salveCount: 3

@@ -8,18 +8,13 @@ namespace Weapons
     {
         private TargetingSystem targetingSystem;
 
-        List<Target> availableTargets= new List<Target>();
+        List<Target> availableTargets;
 
         public override void Init()
         {
             base.Init();
-            targetingSystem = new HitScanTargeting(this);
+            targetingSystem = new TestTargetingSystem();
             StartedSalve += UpdateTargets;
-        }
-
-        private void FixedUpdate()
-        {
-            targetingSystem.UpdateTargetSystem(transform.position, transform.forward);
         }
 
         private void OnDestroy()
@@ -29,12 +24,14 @@ namespace Weapons
 
         private void UpdateTargets(WeaponBehaviour weapon)
         {
+            if (availableTargets == null)
+                return;
+
             availableTargets.Clear();
 
             foreach (var a in targetingSystem.GetTargets(transform.position, transform.forward, param))
             {
                 availableTargets.Add(a);
-                Debug.Log("Adding target: " + a.TargetObject.name);
             }
 
         }
@@ -51,7 +48,6 @@ namespace Weapons
                 // Shoot at first target in list.
 
                 Vector3 direction = (availableTargets[0].TargetPos - transform.position).normalized;
-                transform.LookAt(availableTargets[0].TargetPos);
                 ShootDamagingRay(transform.position, direction);
 
                 availableTargets.RemoveAt(0);
