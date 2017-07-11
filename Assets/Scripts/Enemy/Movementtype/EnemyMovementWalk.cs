@@ -8,13 +8,10 @@ using UnityEngine.AI;
 public class EnemyMovementWalk : Movementtype {
 
     [SerializeField]
-    protected Transform target;
+    protected float speed = 10;
 
     [SerializeField]
-    protected float speed;
-
-    [SerializeField]
-    private float dist = 0.5f;
+    private float dist = 1.5f;
 
 
     // Use this for initialization
@@ -36,7 +33,7 @@ public class EnemyMovementWalk : Movementtype {
         }		
 	}
 
-    //für den Fall dass speed zur Laufzeit geändert wird
+    //für den Fall dass speed or dist zur Laufzeit geändert wird
     public float Speed
     {
         get

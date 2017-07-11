@@ -11,10 +11,23 @@ public class EnemyMovementTeleport : Movementtype {
     [SerializeField]
     protected float teleportCD; //teleportcooldown
 
-	//summary:
-    // get random point in radius "distance" from player
-    //teleport there after cooldown "teleportCD"
-    //enable attack
-    //when player runs out of atack range -> conditon
-    //teleport again
+    protected Vector3 newPos;
+
+    private void Update()
+    {
+        if (active)
+        {
+            // get random point in radius "distance" from player
+            newPos = RandomNavSphere(target.position, distance, NavMesh.AllAreas);
+            //start tp animation in destination and origin
+            //TODO
+            //teleport there after cooldown "teleportCD"
+
+            //enable attack
+            //when player runs out of atack range -> conditon
+            //teleport again
+        }
+    }
+
+    
 }

@@ -3,17 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System;
 
-public abstract class Movementtype : MonoBehaviour {
+public abstract class Movementtype : MonoBehaviour, IActivateable, IUsesTarget
+{
 
     protected NavMeshAgent agent;
+
+    [SerializeField]
+    protected Transform target = null;
 
     [SerializeField]
     protected bool active = false;
 
     public void goTo(Transform target)
     {
-    agent.SetDestination(target.transform.position);
+        agent.SetDestination(target.transform.position);
     }
 
     //muss in update aufgerufen werden
@@ -32,14 +37,26 @@ public abstract class Movementtype : MonoBehaviour {
         agent.SetDestination(agent.transform.position);
     }
 
-    public void Activate()
+    //public void Activate()
+    //{
+    //    active = !active;
+    //}
+
+    public void ActivateM(Transform t)
+    {
+        Activate();
+        target = t;
+    }
+
+    public void Activate(ActivateableState state = ActivateableState.NONE)
     {
         active = !active;
     }
 
+
     public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask)
     {
-        Vector3 randDirection = Random.insideUnitSphere * dist;
+        Vector3 randDirection = UnityEngine.Random.insideUnitSphere * dist;
 
         randDirection += origin;
 
@@ -56,5 +73,9 @@ public abstract class Movementtype : MonoBehaviour {
         agent.SetDestination(newPos);
     }
 
-
+    //to set a new target
+    public void SetTarget(Transform newTarget)
+    {
+        target = newTarget;
+    }
 }
