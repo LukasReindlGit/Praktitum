@@ -73,7 +73,7 @@ public class HitScanTargeting : TargetingSystem
                 tarPoint = copiedPoints[rnd];
                 if (tarPoint.isInShootingAngle(position))
                 {
-                    targets[0] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
+                    targets[0] = tarPoint.getCalculatedHitPoint(parameters.Accuracy);
                     break;
                 }
                 copiedPoints.RemoveAt(rnd);
@@ -106,7 +106,7 @@ public class HitScanTargeting : TargetingSystem
 
         for (int i = 1; i < length; i++)
         {
-            targets[i] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
+            targets[i] = tarPoint.getCalculatedHitPoint(targets[0], parameters.Precision);
         }
 
         // Debugging
