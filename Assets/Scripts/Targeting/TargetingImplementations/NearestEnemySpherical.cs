@@ -343,11 +343,11 @@ public class NearestEnemySpherical
         {
             return false;
         }
-        var denomPositive = denom >= Mathf.Epsilon; //Mathf.Epsilon == 0 + float tolerance
+        var denomPositive = denom >= Mathf.Epsilon; // means "denom > 0", because Mathf.Epsilon == 0 + float tolerance
 
         var s02 = p1 - q1;
         var s_numer = s10.x * s02.y - s10.y * s02.x;
-        if ((s_numer <= -Mathf.Epsilon) == denomPositive)
+        if ((s_numer <= -Mathf.Epsilon) == denomPositive) // means "(s_numer < 0) == denomPositive"
         {
             return false;
         }

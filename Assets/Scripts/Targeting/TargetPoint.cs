@@ -95,24 +95,22 @@ public class TargetPoint : MonoBehaviour
     public Vector3 getRandomHitPointOnSurface(float precision = 1.0f)
     {
         precision = 1 - precision;
-        precision = ((precision < Mathf.Epsilon) && (precision > -Mathf.Epsilon)) ? 0 : precision;
+        precision = ((precision < Mathf.Epsilon) && (precision > -Mathf.Epsilon)) ? 0 : precision; // float tolerance
         switch (primitiveType)
         {
             case PrimitiveTypes.cuboid:
                 return transform.TransformPoint((UnityEngine.Random.value - 0.5f) * precision, (UnityEngine.Random.value - 0.5f) * precision, 0);
             case PrimitiveTypes.circle:
                 double a = UnityEngine.Random.value;
-                a = (a < double.Epsilon) ? double.Epsilon : a;
                 double b = UnityEngine.Random.value;
-                b = (b < double.Epsilon) ? double.Epsilon : b;
                 if (b < a) {
                     var temp = b;
                     b = a;
                     a = temp;
                 }
-                var newPointX = b * precision * Math.Cos(2 * Math.PI * a / b);
-                var newPointY = b * precision * Math.Sin(2 * Math.PI * a / b);
-                return transform.TransformPoint((float) newPointX, (float) newPointY, 0);
+                var newPointX = (b < double.Epsilon || precision < double.Epsilon) ? 0 : b * precision * Math.Cos(2 * Math.PI * a / b); // double tolerance
+                var newPointY = (b < double.Epsilon || precision < double.Epsilon) ? 0 : b * precision * Math.Sin(2 * Math.PI * a / b);
+                return transform.TransformPoint((newPointX == double.NaN) ? 0 : (float) newPointX, (newPointY == double.NaN) ? 0 : (float) newPointY, 0);
             default:
                 return transform.position;
         }
