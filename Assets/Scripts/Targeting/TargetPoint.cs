@@ -82,22 +82,29 @@ public class TargetPoint : MonoBehaviour
         return manager;
     }
 
-    public Target getCalculatedHitPoint(float accuracy, float precision)
+    public Target getCalculatedHitPoint(float accuracy = 1.0f)
+    {
+        return new Target(this, getRandomHitPointOnSurface(accuracy) - transform.position);
+    }
+
+    public Target getCalculatedHitPoint(Target firstTarget, float precision = 1.0f)
     {
         return new Target(this, getRandomHitPointOnSurface(precision) - transform.position);
     }
 
     public Vector3 getRandomHitPointOnSurface(float precision = 1.0f)
     {
-        precision = 1.0f - precision;
-        precision = (precision <= 0.01f) ? 0.01f : precision;
+        precision = 1 - precision;
+        precision = ((precision < Mathf.Epsilon) && (precision > -Mathf.Epsilon)) ? 0 : precision;
         switch (primitiveType)
         {
             case PrimitiveTypes.cuboid:
                 return transform.TransformPoint((UnityEngine.Random.value - 0.5f) * precision, (UnityEngine.Random.value - 0.5f) * precision, 0);
             case PrimitiveTypes.circle:
                 double a = UnityEngine.Random.value;
+                a = (a < double.Epsilon) ? double.Epsilon : a;
                 double b = UnityEngine.Random.value;
+                b = (b < double.Epsilon) ? double.Epsilon : b;
                 if (b < a) {
                     var temp = b;
                     b = a;
