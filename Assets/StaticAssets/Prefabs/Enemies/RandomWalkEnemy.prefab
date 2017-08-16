@@ -140,7 +140,7 @@ GameObject:
   - component: {fileID: 114669302095505754}
   - component: {fileID: 114164959633316194}
   m_Layer: 0
-  m_Name: RandomWalkEnemyWOAtk
+  m_Name: RandomWalkEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

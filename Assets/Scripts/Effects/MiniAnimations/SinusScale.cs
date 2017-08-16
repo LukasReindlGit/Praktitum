@@ -9,6 +9,17 @@ public class SinusScale : MonoBehaviour {
 
     [SerializeField]
     float offset = 1;
+    public float Offset
+    {
+        get
+        {
+            return offset;
+        }
+        set
+        {
+            offset = value;
+        }
+    }
 
     [SerializeField]
     float speed = 1;

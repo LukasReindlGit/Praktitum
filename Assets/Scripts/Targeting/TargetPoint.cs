@@ -89,6 +89,9 @@ public class TargetPoint : MonoBehaviour
 
     public Target getCalculatedHitPoint(Target firstTarget, float precision = 1.0f)
     {
+        if (nearestTargetPoints.Length > 0 && UnityEngine.Random.value < (1 - precision)) {
+            return new Target(this, nearestTargetPoints[0].getRandomHitPointOnSurface(precision) - nearestTargetPoints[0].transform.position);
+        }
         return new Target(this, getRandomHitPointOnSurface(precision) - transform.position);
     }
 
