@@ -22,6 +22,7 @@ public class CameraWeaponEffect : MonoBehaviour
     {
         if (!isRunning || true)
         {
+            StopAllCoroutines();
             StartCoroutine(Effect());
         }
     }

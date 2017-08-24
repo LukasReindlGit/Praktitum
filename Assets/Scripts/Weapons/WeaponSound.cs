@@ -12,6 +12,9 @@ namespace Weapons
 
         [SerializeField]
         private AudioClip shootSound;
+        
+        [SerializeField]
+        private AudioClip salveSound;
 
         [SerializeField]
         private AudioClip reloadSound;
@@ -21,16 +24,21 @@ namespace Weapons
         {
             parentWeapon = GetComponent<WeaponBehaviour>();
             parentWeapon.FiredShot += ParentWeapon_FiredShot;
+            parentWeapon.StartedSalve += ParentWeapon_StartedSalve; ;
             parentWeapon.StartedReload += ParentWeapon_StartedReload;
 
         }
-
         
-
         private void OnDisable()
         {
             parentWeapon.FiredShot -= ParentWeapon_FiredShot;
+            parentWeapon.StartedSalve -= ParentWeapon_StartedSalve; ;
             parentWeapon.StartedReload -= ParentWeapon_StartedReload;
+        }
+
+        private void ParentWeapon_StartedSalve(WeaponBehaviour weapon)
+        {
+            StartCoroutine(InstantiateSound(salveSound));
         }
 
         private void ParentWeapon_StartedReload(WeaponBehaviour weapon)

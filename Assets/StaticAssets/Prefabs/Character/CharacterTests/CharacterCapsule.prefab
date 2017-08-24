@@ -338,7 +338,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: becace23a8f53e34babf0c0fd2ed519a, type: 2}
+  - {fileID: 2100000, guid: 936111f4247c9ac4895f960f2d9f4c7a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -735,6 +735,7 @@ MonoBehaviour:
   shootKey: 13
   nextWeaponKey: 101
   previousWeaponKey: 113
+  positionOffset: {x: 0, y: 1, z: 1}
   currentIndex: 0
 --- !u!114 &114996828778085528
 MonoBehaviour:

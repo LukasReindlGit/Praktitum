@@ -294,7 +294,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 247d8b20c76aeae48967d82ad611a8cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shootSound: {fileID: 8300000, guid: 6c2323aab2ab2604ea7661aaf4e7d199, type: 3}
+  shootSound: {fileID: 8300000, guid: 78936fee9ec86884c8e007a1726cba0b, type: 3}
+  salveSound: {fileID: 0}
   reloadSound: {fileID: 0}
 --- !u!114 &114153129829737320
 MonoBehaviour:
@@ -326,7 +327,7 @@ MonoBehaviour:
     salveCount: 3
     cooldownTime: 0.2
     clipSize: 1
-    reloadTime: 3
+    reloadTime: 1
     range: 10
     damage: 1
     loadingTime: 0
