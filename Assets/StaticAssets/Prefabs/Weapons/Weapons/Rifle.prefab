@@ -41,6 +41,7 @@ GameObject:
   - component: {fileID: 114286919224054934}
   - component: {fileID: 114975290137667490}
   - component: {fileID: 114020218183937380}
+  - component: {fileID: 114475242968342058}
   m_Layer: 8
   m_Name: Rifle
   m_TagString: Player
@@ -547,6 +548,17 @@ MonoBehaviour:
   ObjectsToSpawn:
   - {fileID: 1012635350648270, guid: 2303df9953f156d4a94eadf85eb3f57b, type: 2}
   spawnAsChild: 1
+--- !u!114 &114475242968342058
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1107031223915414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b78393888606ca44b7c22f037280a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114974787774258312
 MonoBehaviour:
   m_ObjectHideFlags: 1

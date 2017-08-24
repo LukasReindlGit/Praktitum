@@ -40,6 +40,7 @@ GameObject:
   - component: {fileID: 114652643147717750}
   - component: {fileID: 114153129829737320}
   - component: {fileID: 114187893337648412}
+  - component: {fileID: 114272261407711332}
   m_Layer: 8
   m_Name: DummyHitScanRockets
   m_TagString: Untagged
@@ -337,6 +338,17 @@ MonoBehaviour:
       type: 2}
   projectile: {fileID: 1176124900967904, guid: 26e399c8ae4b59f468aac8faa929f44c, type: 2}
   availableTargets: []
+--- !u!114 &114272261407711332
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1127271486375156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b78393888606ca44b7c22f037280a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114652643147717750
 MonoBehaviour:
   m_ObjectHideFlags: 1
