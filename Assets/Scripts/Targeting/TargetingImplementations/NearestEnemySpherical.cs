@@ -20,7 +20,7 @@ public class NearestEnemySpherical
     private bool nearEnemyInView = false, distantEnemyInView = false;
     private float maxDistance, sqrImmediateProximity, angleToEnemy, distanceToA, distanceToB;
     private int enemiesLength;
-    private Vector3 rayDirection, pos, distPos, distPosRightV3, distPosLeftV3;
+    private Vector3 rayDirection, posV2, distPos, distPosRightV3, distPosLeftV3;
     private Vector2 distPosRightV2, distPosLeftV2;
     private RaycastHit hit;
 
@@ -146,10 +146,10 @@ public class NearestEnemySpherical
 
         result.Clear();
 
-        pos = new Vector3(position.x, 0, position.z);
-        distPos = pos + new Vector3(direction.x, 0, direction.z) * maxDistance;
-        distPosRightV3 = Quaternion.Euler(0, playersViewAngle, 0) * (distPos - pos) + pos;
-        distPosLeftV3 = Quaternion.Euler(0, -playersViewAngle, 0) * (distPos - pos) + pos;
+        posV2 = new Vector3(position.x, 0, position.z);
+        distPos = posV2 + new Vector3(direction.x, 0, direction.z) * maxDistance;
+        distPosRightV3 = Quaternion.Euler(0, playersViewAngle, 0) * (distPos - posV2) + posV2;
+        distPosLeftV3 = Quaternion.Euler(0, -playersViewAngle, 0) * (distPos - posV2) + posV2;
         distPosRightV2 = new Vector2(distPosRightV3.x, distPosRightV3.z);
         distPosLeftV2 = new Vector2(distPosLeftV3.x, distPosLeftV3.z);
 
@@ -219,6 +219,15 @@ public class NearestEnemySpherical
     }
 
     /// <summary>
+    /// Returns the length of the ordered array filled with all seen enemies from nearest to farthest.
+    /// </summary>
+    /// <returns>Integer with length of the ordered array filled with all seen enemies from nearest to farthest.</returns>
+    public int getNearestEnemiesLength()
+    {
+        return sortedEnemies.Length;
+    }
+
+    /// <summary>
     /// Updates and returns the current target enemy.
     /// </summary>
     /// <param name="position">The current position of the weapon or player.</param>
@@ -250,6 +259,16 @@ public class NearestEnemySpherical
     public GameObject getTargetEnemy()
     {
         return (sortedEnemies != null && sortedEnemies.Length > 0) ? sortedEnemies[0] : null;
+    }
+
+    /// <summary>
+    /// Returns the target enemy at position x in the sorted array of all seen enemies.
+    /// </summary>
+    /// <param name="pos">The position of the target enemy you want to get.</param>
+    /// <returns>The target enemy at position x in the sorted array of all seen enemies.</returns>
+    public GameObject getTargetEnemyAt(int pos)
+    {
+        return (sortedEnemies != null && sortedEnemies.Length > pos) ? sortedEnemies[pos] : null;
     }
 
     /// <summary>
@@ -314,32 +333,30 @@ public class NearestEnemySpherical
     /// <param name="q1">Vector to the start point of q.</param>
     /// <param name="q2">Vector to the end point of q.</param>
     /// <returns>True, if an intersection was found.</returns>
-    public static bool lineSegementsIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2)
+    public bool lineSegementsIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2)
     {
         var s10 = p2 - p1;
         var s32 = q2 - q1;
 
         var denom = s10.x * s32.y - s32.x * s10.y;
-        if (denom == 0)
+        if (floatIsZero(denom))
         {
             return false;
         }
-        var denomPositive = denom > 0;
+        var denomPositive = denom >= Mathf.Epsilon; // means "denom > 0", because Mathf.Epsilon == 0 + float tolerance
 
         var s02 = p1 - q1;
         var s_numer = s10.x * s02.y - s10.y * s02.x;
-        if ((s_numer < 0) == denomPositive)
+        if ((s_numer <= -Mathf.Epsilon) == denomPositive) // means "(s_numer < 0) == denomPositive"
         {
             return false;
         }
-
 
         var t_numer = s32.x * s02.y - s32.y * s02.x;
-        if ((t_numer < 0) == denomPositive)
+        if ((t_numer <= -Mathf.Epsilon) == denomPositive)
         {
             return false;
         }
-
 
         if ((s_numer > denom) == denomPositive || (t_numer > denom) == denomPositive)
         {
@@ -347,10 +364,20 @@ public class NearestEnemySpherical
         }
 
         // Intersection point
-        // var t = t_numer / denom;
-        // var intersection = new Vector2(p1.x + (t * s10.x), p1.y + (t * s10.y));
+        //var t = t_numer / denom;
+        //var intersection = new Vector2(p1.x + (t * s10.x), p1.y + (t * s10.y));
 
         return true;
+    }
+
+    private bool floatIsZero(float value)
+    { 
+        if ((value < Mathf.Epsilon) && (value > -Mathf.Epsilon))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>

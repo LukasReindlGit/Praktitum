@@ -69,6 +69,8 @@ MonoBehaviour:
     precision: 0.25
     accuracy: 0.5
     angle: 5
+    targetProjector: {fileID: 1815848042985034, guid: 28361454a9ee48c4abd1a9ca5be715a8,
+      type: 2}
 --- !u!114 &114141176660350590
 MonoBehaviour:
   m_ObjectHideFlags: 1

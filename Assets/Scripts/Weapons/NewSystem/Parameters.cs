@@ -212,7 +212,21 @@ namespace Weapons {
                 angle = value;
             }
         }
-              
+
+        [SerializeField]
+        private GameObject targetProjector;
+        public GameObject TargetProjector
+        {
+            get
+            {
+                return targetProjector;
+            }
+
+            set
+            {
+                targetProjector = value;
+            }
+        }
 
     }
 }

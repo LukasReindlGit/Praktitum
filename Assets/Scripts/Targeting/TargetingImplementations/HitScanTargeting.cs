@@ -14,6 +14,9 @@ public class HitScanTargeting : TargetingSystem
     private TargetPointManager targetPointManager;
     private int rnd, copiedPointsLength;
     private TargetPoint tarPoint;
+    private GameObject lastTarget;
+    private GameObject projector;
+    private SinusScale[] projectorScales;
 
     public HitScanTargeting(WeaponBehaviour weapon)
     {
@@ -73,7 +76,7 @@ public class HitScanTargeting : TargetingSystem
                 tarPoint = copiedPoints[rnd];
                 if (tarPoint.isInShootingAngle(position))
                 {
-                    targets[0] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
+                    targets[0] = tarPoint.getCalculatedHitPoint(parameters.Accuracy);
                     break;
                 }
                 copiedPoints.RemoveAt(rnd);
@@ -106,7 +109,7 @@ public class HitScanTargeting : TargetingSystem
 
         for (int i = 1; i < length; i++)
         {
-            targets[i] = tarPoint.getCalculatedHitPoint(parameters.Accuracy, parameters.Precision);
+            targets[i] = tarPoint.getCalculatedHitPoint(targets[0], parameters.Precision);
         }
 
         // Debugging
@@ -123,5 +126,47 @@ public class HitScanTargeting : TargetingSystem
     public override void UpdateTargetSystem(Vector3 position, Vector3 direction)
     {
         system.updateNearestEnemies(position, direction);
+        target = system.getTargetEnemy();
+        if (target != lastTarget)
+        {
+            lastTarget = target;
+            if (weapon.param.TargetProjector != null)
+            {
+                if (target != null)
+                {
+                    if (projector == null)
+                    {
+                        projector = GameObject.Instantiate(weapon.param.TargetProjector);
+                        projectorScales = projector.GetComponentsInChildren<SinusScale>();
+                    }
+                    projector.transform.parent = target.transform;
+                    projector.transform.localPosition = Vector3.zero;
+                    if (projectorScales.Length == 2)
+                    {
+                        var extents = target.GetComponent<Collider>().bounds.size;
+                        var biggest = (extents.x > extents.z) ? extents.x : extents.z;
+                        if (projectorScales[0].Offset > projectorScales[1].Offset)
+                        {
+                            projectorScales[0].Offset = biggest + 0.6f;
+                            projectorScales[1].Offset = biggest;
+                        }
+                        else
+                        {
+                            projectorScales[1].Offset = biggest + 0.6f;
+                            projectorScales[0].Offset = biggest;
+                        }
+                    }
+                    projector.SetActive(true);
+                }
+                else if (target == null && projector != null)
+                {
+                    projector.SetActive(false);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Your weapon called \"" + weapon.gameObject.name + "\" has no TargetProjector defined in its parameters! Thus you cannot see the active target in game.", weapon);
+            }
+        }
     }
 }
