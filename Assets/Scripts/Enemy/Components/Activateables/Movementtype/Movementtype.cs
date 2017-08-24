@@ -16,6 +16,12 @@ public abstract class Movementtype : MonoBehaviour, IActivateable, IUsesTarget
     [SerializeField]
     protected bool active = false;
 
+    [SerializeField]
+    protected MonoBehaviour activator;
+
+    [SerializeField]
+    protected float dist = 1.5f;
+
     public void goTo(Transform target)
     {
         agent.SetDestination(target.transform.position);
@@ -24,9 +30,15 @@ public abstract class Movementtype : MonoBehaviour, IActivateable, IUsesTarget
     //muss in update aufgerufen werden
     public void goToRange(Transform target, float distance)
     {
-        if (Vector3.Distance(transform.position, target.transform.position) < distance)
+        if (Vector3.Distance(transform.position, target.transform.position) <= distance)
         {
             StopMoving();
+            if (activator != null)
+            {
+                (activator as IActivateable).Activate();
+                //GetComponentInParent<Lifecomponent>().SetTarget(target);
+                active = !active;
+            }
             return;
         }
         goTo(target);
@@ -51,6 +63,7 @@ public abstract class Movementtype : MonoBehaviour, IActivateable, IUsesTarget
     public void Activate(ActivateableState state = ActivateableState.NONE)
     {
         active = !active;
+        dist = GetComponentInParent<Lifecomponent>().MinRange;
     }
 
 
