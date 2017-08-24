@@ -20,6 +20,9 @@ namespace Weapons
         [SerializeField]
         KeyCode previousWeaponKey;
 
+        [SerializeField]
+        Vector3 positionOffset= Vector3.zero;
+
         WeaponBehaviour currentWeapon;
         [SerializeField]
         int currentIndex = 0;
@@ -89,6 +92,7 @@ namespace Weapons
             }
 
             GameObject g = Instantiate(weapons[currentIndex].gameObject, transform);
+            g.transform.localPosition = positionOffset;
             currentWeapon = g.GetComponent<WeaponBehaviour>();
         }
     }

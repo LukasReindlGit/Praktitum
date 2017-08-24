@@ -14,6 +14,8 @@ public class ExplodeOnCollision : MonoBehaviour {
         if (onTrigger)
             return;
 
+        FindObjectOfType<CameraWeaponEffect>().CallEffect();
+
         Instantiate(explosion, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
