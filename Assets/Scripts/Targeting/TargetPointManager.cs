@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TargetPointManager : MonoBehaviour {
+public class TargetPointManager : MonoBehaviour
+{
 
     /// <summary>
     /// Array of all target points sorted by first critical elements and then uncritical elements
@@ -30,8 +31,9 @@ public class TargetPointManager : MonoBehaviour {
     /// </summary>
     private int uncriticalCount;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         if (gameObject.transform.parent == null)
         {
             throw new MissingComponentException("TargetPointManager must be a direct child (object) of the possible target called \"" + gameObject.name + "\"!");
@@ -98,13 +100,13 @@ public class TargetPointManager : MonoBehaviour {
 
         uncritTargets = new TargetPoint[uncriticalCount];
         Array.Copy(targets, criticalCount, uncritTargets, 0, uncriticalCount);
-	}
-	
+    }
+
     /// <summary>
     /// Get an array with all target points on the enemy. It is sorted by critical target points first and then uncritical target points.
     /// </summary>
     /// <returns>sorted TargetPoint array (first critical elements then uncritical elements)</returns>
-	public TargetPoint[] getTargetPoints()
+    public TargetPoint[] getTargetPoints()
     {
         return targets;
     }

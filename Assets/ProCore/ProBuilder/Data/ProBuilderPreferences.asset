@@ -13,16 +13,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Bool_keys:
   - pbCheckForProBuilderUpdates
-  m_Int_keys: []
-  m_Float_keys: []
+  - pbGenerateUV2PerObject
+  m_Int_keys:
+  - pbHandleAlignment
+  m_Float_keys:
+  - pbEditorScroll.x
+  - pbEditorScroll.y
   m_String_keys:
   - pbLastWebVersionChecked
   m_Color_keys: []
   m_Material_keys: []
-  m_Bool_values: 01
-  m_Int_values: 
-  m_Float_values: []
+  m_Bool_values: 0100
+  m_Int_values: 00000000
+  m_Float_values:
+  - 0
+  - 0
   m_String_values:
+<<<<<<< HEAD
   - 2.9.5f3
+=======
+  - 2.9.3f0
+>>>>>>> bb8241e49282b8dd710ba9e037942c06421bd443
   m_Color_values: []
   m_Material_values: []
