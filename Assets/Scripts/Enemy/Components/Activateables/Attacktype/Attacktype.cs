@@ -23,39 +23,51 @@ public class Attacktype : MonoBehaviour, IActivateable
     [SerializeField]
     protected float damage = 1;
 
+    [SerializeField]
+    protected float cooldown = 2;
+
     protected bool active = false;
+    protected bool check = true;
     protected float minRange;
 
-    protected void Start()
+    public void Start()
     {
         minRange = maxRange - (maxRange * StoppingRange);
         GetComponentInParent<Lifecomponent>().MaxRange = maxRange;
         GetComponentInParent<Lifecomponent>().MinRange = minRange;
     }
 
+    public void Update()
+    {
+        if (active && check)
+        {
+            Attack();
+            //Cooldown
+            StartCoroutine(CoolDown(cooldown));
+        }
+    }
+
     public void Activate(ActivateableState state = ActivateableState.NONE)
     {
         active = !active;
-        Attack();
     }
 
     public void Attack()
     {
-        while (active)
+        target = GetComponentInParent<Lifecomponent>().GetTarget();
+        target.GetComponent<PlayerHealth>().doDamage(damage);
+        Debug.Log("Damage Done " + damage);
+
+        if (Vector3.Distance(transform.position, target.transform.position) > maxRange)
         {
-            target = GetComponentInParent<Lifecomponent>().GetTarget();
-            target.GetComponent<PlayerHealth>().doDamage(damage);
-            if (Vector3.Distance(transform.position, target.transform.position) > maxRange)
+            active = !active;
+
+            if (activateable != null)
             {
-                active = !active;
-
-                if (activateable != null)
-                {
-                    (activateable as IActivateable).Activate();
-                    GetComponentInParent<Lifecomponent>().SetTarget(target);
-                }
-
+                (activateable as IActivateable).Activate();
+                GetComponentInParent<Lifecomponent>().SetTarget(target);
             }
+
         }
     }
 
@@ -63,6 +75,14 @@ public class Attacktype : MonoBehaviour, IActivateable
     {
         target = newTarget;
         GetComponentInParent<Lifecomponent>().SetTarget(newTarget);
+    }
+
+    IEnumerator CoolDown(float coolDown)
+    {
+        check = false;
+        yield return new WaitForSeconds(coolDown);
+        check = true;
+
     }
 
 }

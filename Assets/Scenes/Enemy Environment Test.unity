@@ -18028,6 +18028,11 @@ Prefab:
       propertyPath: activator
       value: 
       objectReference: {fileID: 982843299}
+    - target: {fileID: 114164959633316194, guid: a51e7a9d3e9550e45a40728f9d9830d8,
+        type: 2}
+      propertyPath: maxRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a51e7a9d3e9550e45a40728f9d9830d8, type: 2}
   m_IsPrefabParent: 0
@@ -18064,9 +18069,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   maxRange: 5
-  StoppingRange: 0.1
+  StoppingRange: 0.2
   activateable: {fileID: 982843304}
   damage: 1
+  cooldown: 2
 --- !u!114 &982843304
 MonoBehaviour:
   m_ObjectHideFlags: 0
