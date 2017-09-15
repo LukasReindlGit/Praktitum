@@ -12,11 +12,12 @@
 			"RenderType" = "Transparent"
 		}
 		LOD 200
-
-		Cull Off
+		Pass{
+			Cull Front
+		}
 
 		CGPROGRAM
-		#pragma surface surf Lambert alpha:fade nolighting
+		#pragma surface surf Lambert alpha:fade
 
 		sampler2D _MainTex;
 		fixed4 _Color;
