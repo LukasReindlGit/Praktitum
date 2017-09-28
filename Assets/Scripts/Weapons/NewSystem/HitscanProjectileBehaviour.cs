@@ -22,6 +22,7 @@ namespace Weapons
         private void OnDestroy()
         {
             StartedSalve -= UpdateTargets;
+            targetingSystem.OnDestroy();
         }
 
         private void FixedUpdate()

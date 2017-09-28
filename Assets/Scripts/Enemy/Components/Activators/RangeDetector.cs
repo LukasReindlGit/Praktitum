@@ -10,7 +10,39 @@ namespace AI.Component
         [SerializeField]
         String target;
 
+        public GameObject targetPlayer;
+        public float requiredRange = 30;
+
         private Transform targetColl;
+        private Lifecomponent lifecomp;
+        private bool isInRange = false;
+
+        public void Start()
+        {
+            lifecomp = this.GetComponent<Lifecomponent>();
+        }
+
+        public void FixedUpdate()
+        {
+            if (targetPlayer != null)
+            {
+                if (!isInRange && Vector3.Distance(transform.position, targetPlayer.transform.position) <= requiredRange)
+                {
+                    targetColl = targetPlayer.gameObject.transform;
+                    lifecomp.SetTarget(targetPlayer.gameObject);
+                    ActivateAllTargets();
+                    isInRange = true;
+
+                    activated = true;
+                }
+                else if (isInRange && Vector3.Distance(transform.position, targetPlayer.transform.position) > requiredRange)
+                {
+                    isInRange = false;
+                }
+            }
+        }
+
+        
 
         private void OnTriggerEnter(Collider other)
         {
@@ -23,7 +55,7 @@ namespace AI.Component
             if (other.gameObject.tag == target)
             {
                 targetColl = other.gameObject.transform;
-                this.GetComponent<Lifecomponent>().SetTarget(other.gameObject);
+                lifecomp.SetTarget(other.gameObject);
                 ActivateAllTargets();
 
                 //((IActivateable) activateableTarget).Activate();

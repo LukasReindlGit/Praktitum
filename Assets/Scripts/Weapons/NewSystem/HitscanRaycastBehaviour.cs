@@ -25,6 +25,7 @@ namespace Weapons
         private void OnDestroy()
         {
             StartedSalve -= UpdateTargets;
+            targetingSystem.OnDestroy();
         }
 
         private void UpdateTargets(WeaponBehaviour weapon)
@@ -34,7 +35,7 @@ namespace Weapons
             foreach (var a in targetingSystem.GetTargets(transform.position, transform.forward, param))
             {
                 availableTargets.Add(a);
-                Debug.Log("Adding target: " + a.TargetObject.name);
+                //Debug.Log("Adding target: " + a.TargetObject.name);
             }
 
         }

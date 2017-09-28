@@ -123,6 +123,14 @@ public class HitScanTargeting : TargetingSystem
         return targets;
     }
 
+    public override void OnDestroy()
+    {
+        if (projector != null)
+        {
+            GameObject.Destroy(projector);
+        }
+    }
+
     public override void UpdateTargetSystem(Vector3 position, Vector3 direction)
     {
         system.updateNearestEnemies(position, direction);

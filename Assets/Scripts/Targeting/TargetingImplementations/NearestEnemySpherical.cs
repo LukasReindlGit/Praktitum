@@ -424,7 +424,7 @@ public class NearestEnemySpherical
                 Gizmos.color = Color.green;
             }
 
-            Gizmos.DrawWireCube(sortedEnemies[i].transform.position, sortedEnemies[i].GetComponent<Renderer>().bounds.size);
+            Gizmos.DrawWireCube(sortedEnemies[i].transform.position, sortedEnemies[i].GetComponent<Collider>().bounds.size);
         }
     }
 }

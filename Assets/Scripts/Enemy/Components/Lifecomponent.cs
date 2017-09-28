@@ -66,4 +66,18 @@ public class Lifecomponent : MonoBehaviour {
             minRange = value;
         }
     }
+
+    public void OnCollisionEnter(Collision other)
+    {
+        Debug.Log("Test");
+        if (other.gameObject.CompareTag("Projectile"))
+        {
+            doDamage(1);
+            Debug.Log("HIT");
+        }
+        else if (other.gameObject.CompareTag("Rocket"))
+        {
+            doDamage(3);
+        }
+    }
 }

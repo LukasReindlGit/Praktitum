@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 114168996943849864}
   - component: {fileID: 114996828778085528}
   - component: {fileID: 114411666959311138}
+  - component: {fileID: 114684265082806290}
   m_Layer: 8
   m_Name: CharacterCapsule
   m_TagString: Player
@@ -265,8 +266,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1302548084742192}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.23, y: 1.89, z: -21.79}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -10.296165, y: 1.106, z: -25.3}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children:
   - {fileID: 4551089881930496}
   - {fileID: 4537925889217864}
@@ -737,6 +738,18 @@ MonoBehaviour:
   previousWeaponKey: 113
   positionOffset: {x: 0, y: 1, z: 1}
   currentIndex: 0
+--- !u!114 &114684265082806290
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1302548084742192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f392f7a56338bf40b6dda0ef69f74d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthPoints: 10
 --- !u!114 &114996828778085528
 MonoBehaviour:
   m_ObjectHideFlags: 1
