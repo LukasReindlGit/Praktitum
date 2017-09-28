@@ -10,13 +10,6 @@ namespace AI.Component
         [SerializeField]
         String target;
 
-        [SerializeField]
-        MonoBehaviour[] activateables;
-               
-        [SerializeField]
-        bool onlyOnce = false;
-        bool activated = false;
-
         private Transform targetColl;
 
         private void OnTriggerEnter(Collider other)
@@ -29,8 +22,8 @@ namespace AI.Component
 
             if (other.gameObject.tag == target)
             {
-                Debug.Log("Found player");
                 targetColl = other.gameObject.transform;
+                this.GetComponent<Lifecomponent>().SetTarget(other.gameObject);
                 ActivateAllTargets();
 
                 //((IActivateable) activateableTarget).Activate();
@@ -38,22 +31,37 @@ namespace AI.Component
             }
         }
 
-        private void ActivateAllTargets()
+        override protected void ActivateAllTargets()
         {
+            //base.ActivateAllTargets();
             foreach (var a in activateables)
             {
-                if(a is IUsesTarget)
+                if (a is IUsesTarget)
                 {
                     IUsesTarget iu = a as IUsesTarget;
                     iu.SetTarget(targetColl.transform);
-
                 }
-                IActivateable ia = a as IActivateable;
-                if (ia != null)
-                {
-                    ia.Activate();
-                }
+                ActivateTarget(a);
+                
             }
+            
+        }
+        //    virtual protected void ActivateAllTargets()
+        //    {
+        //        foreach (var a in activateables)
+        //        {
+        //            if(a is IUsesTarget)
+        //            {
+        //                IUsesTarget iu = a as IUsesTarget;
+        //                iu.SetTarget(targetColl.transform);
+
+        //            }
+        //            IActivateable ia = a as IActivateable;
+        //            if (ia != null)
+        //            {
+        //                ia.Activate();
+        //            }
+        //        }
+        //    }
         }
     }
-}
