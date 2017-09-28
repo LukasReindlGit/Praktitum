@@ -49,11 +49,11 @@ namespace Weapons
             else
             {
                 // Shoot at first target in list.
-
+                Quaternion tempRot = transform.rotation;
                 Vector3 direction = (availableTargets[0].TargetPos - transform.position).normalized;
                 transform.LookAt(availableTargets[0].TargetPos);
                 ShootDamagingRay(transform.position, direction);
-
+                transform.rotation = tempRot;
                 availableTargets.RemoveAt(0);
             }
         }
