@@ -5,8 +5,14 @@ using UnityEngine;
 namespace AI.Component
 {
 
-    public class Activator : MonoBehaviour
+    public abstract class Activator : MonoBehaviour
     {
+        [SerializeField]
+        protected MonoBehaviour[] activateables;
+
+        [SerializeField]
+        protected bool onlyOnce = false;
+        protected bool activated = false;
 
         // Use this for initialization
         void Start()
@@ -19,5 +25,22 @@ namespace AI.Component
         {
 
         }
+        virtual protected void ActivateAllTargets()
+        {
+            foreach (var a in activateables)
+            {
+                ActivateTarget(a);
+            }
+        }
+
+        protected void ActivateTarget(MonoBehaviour a)
+        {
+            IActivateable ia = a as IActivateable;
+            if (ia != null)
+            {
+                ia.Activate();
+            }
+        }
+
     }
 }
