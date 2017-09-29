@@ -20,7 +20,10 @@ namespace AI.Component
         public void Start()
         {
             lifecomp = this.GetComponent<Lifecomponent>();
+            targetPlayer = lifecomp.target;
         }
+
+        
 
         public void FixedUpdate()
         {

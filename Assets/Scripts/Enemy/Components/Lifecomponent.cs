@@ -12,7 +12,7 @@ public class Lifecomponent : MonoBehaviour {
     float hitPoints;
 
     [SerializeField]
-    private GameObject target = null;
+    public GameObject target;
 
     [SerializeField]
     float maxRange;
@@ -22,7 +22,10 @@ public class Lifecomponent : MonoBehaviour {
 
     public GameObject explosion;
 
-
+    void Awake()
+    {
+        target = GameObject.FindGameObjectWithTag("Player");
+    }
 
     public void doDamage(String tag)
     {
