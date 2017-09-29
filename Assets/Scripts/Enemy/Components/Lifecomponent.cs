@@ -20,12 +20,39 @@ public class Lifecomponent : MonoBehaviour {
     [SerializeField]
     float minRange;
 
-    
+    public GameObject explosion;
+
+
+
+    public void doDamage(String tag)
+    {
+        var damage = 1.0f;
+        switch (tag)
+        {
+            case "Projectile":
+                damage = 1;
+                break;
+            case "Rocket":
+                damage = 3;
+                break;
+        }
+        hitPoints -= damage;
+        if(hitPoints <= 0)
+        {
+            Instantiate(explosion, transform.position, Quaternion.identity);
+            destruct();
+        }
+    }
+
+    public void destruct()
+    {
+        GameObject.Destroy(gameObject);
+    }
 
     public void doDamage(float damage)
     {
         hitPoints -= damage;
-        if(hitPoints <= 0)
+        if (hitPoints <= 0)
         {
             Destroy(this.gameObject);
         }
@@ -64,20 +91,6 @@ public class Lifecomponent : MonoBehaviour {
         set
         {
             minRange = value;
-        }
-    }
-
-    public void OnCollisionEnter(Collision other)
-    {
-        Debug.Log("Test");
-        if (other.gameObject.CompareTag("Projectile"))
-        {
-            doDamage(1);
-            Debug.Log("HIT");
-        }
-        else if (other.gameObject.CompareTag("Rocket"))
-        {
-            doDamage(3);
         }
     }
 }

@@ -1701,14 +1701,14 @@ Prefab:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 114579231554941726, guid: 15f1254660b00a6409f0bea3e7f32a24,
-        type: 2}
-      propertyPath: target
-      value: 
-      objectReference: {fileID: 2102886003}
     - target: {fileID: 114358190771016658, guid: 15f1254660b00a6409f0bea3e7f32a24,
         type: 2}
       propertyPath: targetPlayer
+      value: 
+      objectReference: {fileID: 2102886003}
+    - target: {fileID: 114579231554941726, guid: 15f1254660b00a6409f0bea3e7f32a24,
+        type: 2}
+      propertyPath: target
       value: 
       objectReference: {fileID: 2102886003}
     m_RemovedComponents: []
