@@ -21,12 +21,19 @@ public class Lifecomponent : MonoBehaviour {
     float minRange;
 
     public GameObject explosion;
-    private AudioSource audio;
+    float updatedHitPoints;
 
     void Awake()
     {
-        target = GameObject.FindGameObjectWithTag("Player");
-        audio = GetComponent<AudioSource>();
+        if (GameHandler.players.Count > 0)
+        {
+            target = GameHandler.players[0];
+        }
+        else
+        {
+            target = GameObject.FindGameObjectWithTag("Player");
+        }
+        updatedHitPoints = hitPoints;
     }
 
     public void doDamage(String tag)
@@ -41,27 +48,24 @@ public class Lifecomponent : MonoBehaviour {
                 damage = 3;
                 break;
         }
-        hitPoints -= damage;
-        if(hitPoints <= 0)
+        updatedHitPoints -= damage;
+        if(updatedHitPoints <= 0)
         {
             Instantiate(explosion, transform.position, Quaternion.identity);
-            if (audio != null)
-            {
-                audio.Play();
-            }
             destruct();
         }
     }
 
     public void destruct()
     {
-        GameObject.Destroy(gameObject, 0.2f);
+        updatedHitPoints = hitPoints;
+        SpawningSystem.instance.respawn(gameObject);
     }
 
     public void doDamage(float damage)
     {
-        hitPoints -= damage;
-        if (hitPoints <= 0)
+        updatedHitPoints -= damage;
+        if (updatedHitPoints <= 0)
         {
             destruct();
         }

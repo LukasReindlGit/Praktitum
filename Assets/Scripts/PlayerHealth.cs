@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerHealth : MonoBehaviour {
 
     [SerializeField]
-    float healthPoints = 10;
+    float healthPoints = 3;
 
     public void doDamage(float damage)
     {
@@ -15,5 +15,15 @@ public class PlayerHealth : MonoBehaviour {
         {
             Debug.Log("You are DEAD!");
         }
+    }
+
+    void Awake()
+    {
+        GameHandler.players.Add(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        GameHandler.players.Remove(gameObject);
     }
 }

@@ -45,7 +45,7 @@ public class Attacktype : MonoBehaviour, IActivateable
         {
             Attack();
             //Cooldown
-            StartCoroutine(CoolDown(cooldown));
+            //StartCoroutine(CoolDown(cooldown));
         }
     }
 
@@ -56,23 +56,19 @@ public class Attacktype : MonoBehaviour, IActivateable
 
     public void Attack()
     {
-        
+
         target = life.GetTarget();
         target.GetComponent<PlayerHealth>().doDamage(damage);
         Instantiate(life.explosion, transform.position, Quaternion.identity);
         destruct();
+        active = !active;
 
-        /*if (Vector3.Distance(transform.position, target.transform.position) > maxRange)
+        /*if (activateable != null)
         {
-            active = !active;
-
-            if (activateable != null)
-            {
-                (activateable as IActivateable).Activate();
-                GetComponentInParent<Lifecomponent>().SetTarget(target);
-            }
-
+            (activateable as IActivateable).Activate();
+            //life.SetTarget(target);
         }*/
+
     }
 
     public void destruct()

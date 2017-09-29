@@ -12,7 +12,7 @@ public class Target {
     }
 
     private TargetPoint targetObject;
-    public GameObject TargetObject { get { return targetObject.gameObject; } }
+    public GameObject TargetObject { get { try { return targetObject.gameObject; } catch (MissingReferenceException) { return null; } } }
     public TargetPoint TargetPoint { get { return targetObject; } }
 
     private Vector3 offset;
