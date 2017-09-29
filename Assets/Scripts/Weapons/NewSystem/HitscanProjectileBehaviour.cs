@@ -16,7 +16,7 @@ namespace Weapons
             base.Init();
             targetingSystem = new HitScanTargeting(this);
             StartedSalve += UpdateTargets;
-            
+
         }
 
         private void OnDestroy()
@@ -27,13 +27,13 @@ namespace Weapons
 
         private void FixedUpdate()
         {
-            targetingSystem.UpdateTargetSystem(transform.position, transform.forward);           
+            targetingSystem.UpdateTargetSystem(transform.position, transform.parent.forward);
         }
 
         private void UpdateTargets(WeaponBehaviour weapon)
         {
             availableTargets.Clear();
-            Target[] targetArr = targetingSystem.GetTargets(transform.position, transform.forward, param);
+            Target[] targetArr = targetingSystem.GetTargets(transform.position, transform.parent.forward, param);
             if (targetArr == null)
                 return;
 
@@ -55,20 +55,23 @@ namespace Weapons
             }
             else
             {
-                // Shoot at first target in list.
 
+                // Shoot at first target in list.
+                //Debug.Log("Hallo");
                 Vector3 direction = (availableTargets[0].TargetPos - transform.position).normalized;
+                transform.LookAt(availableTargets[0].TargetPos);
                 GameObject g = SpawnProjectile();
-                    g.transform.forward = direction;
+                g.transform.forward = direction;
 
                 // Apply target to projectile if supported:
                 IUsesTarget[] tArr = g.GetComponents<IUsesTarget>();
-                foreach(var t in tArr)
+                foreach (var t in tArr)
                 {
                     t.SetTarget(availableTargets[0].TargetObject.transform);
                 }
 
                 availableTargets.RemoveAt(0);
+
             }
         }
     }

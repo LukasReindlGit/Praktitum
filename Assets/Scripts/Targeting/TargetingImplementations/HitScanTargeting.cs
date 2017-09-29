@@ -113,12 +113,12 @@ public class HitScanTargeting : TargetingSystem
         }
 
         // Debugging
-        for (int i = 0; i < length; i++)
+        /*for (int i = 0; i < length; i++)
         {
             var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             a.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             GameObject.Instantiate(a, targets[i].TargetPos, Quaternion.identity);
-        }
+        }*/
 
         return targets;
     }

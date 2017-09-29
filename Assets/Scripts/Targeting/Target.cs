@@ -16,6 +16,16 @@ public class Target {
     public TargetPoint TargetPoint { get { return targetObject; } }
 
     private Vector3 offset;
-    public Vector3 TargetPos { get { return targetObject.transform.position + offset; } }
+    public Vector3 TargetPos
+    {
+        get {
+            try {
+                return targetObject.transform.position + offset;
+            } catch (MissingReferenceException)
+            {
+                return Vector3.zero;
+            }
+        }
+    }
 
 }
