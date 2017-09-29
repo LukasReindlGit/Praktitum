@@ -24,6 +24,14 @@ public class DummyProjectileLook : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Shootable"))
+        {
+            Lifecomponent life;
+            if (life = other.gameObject.GetComponent<Lifecomponent>())
+            {
+                life.doDamage(gameObject.tag);
+            }
+        }
         if (other.tag != "Player")
         {
 

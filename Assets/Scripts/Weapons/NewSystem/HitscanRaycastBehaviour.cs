@@ -19,22 +19,23 @@ namespace Weapons
 
         private void FixedUpdate()
         {
-            targetingSystem.UpdateTargetSystem(transform.position, transform.forward);
+            targetingSystem.UpdateTargetSystem(transform.position, transform.parent.forward);
         }
 
         private void OnDestroy()
         {
             StartedSalve -= UpdateTargets;
+            targetingSystem.OnDestroy();
         }
 
         private void UpdateTargets(WeaponBehaviour weapon)
         {
             availableTargets.Clear();
 
-            foreach (var a in targetingSystem.GetTargets(transform.position, transform.forward, param))
+            foreach (var a in targetingSystem.GetTargets(transform.position, transform.parent.forward, param))
             {
                 availableTargets.Add(a);
-                Debug.Log("Adding target: " + a.TargetObject.name);
+                //Debug.Log("Adding target: " + a.TargetObject.name);
             }
 
         }
@@ -48,12 +49,13 @@ namespace Weapons
             }
             else
             {
+                //Debug.Log("Target!");
                 // Shoot at first target in list.
-                Quaternion tempRot = transform.rotation;
+                //Quaternion tempRot = transform.rotation;
                 Vector3 direction = (availableTargets[0].TargetPos - transform.position).normalized;
                 transform.LookAt(availableTargets[0].TargetPos);
                 ShootDamagingRay(transform.position, direction);
-                transform.rotation = tempRot;
+                //transform.rotation = tempRot;
                 availableTargets.RemoveAt(0);
             }
         }

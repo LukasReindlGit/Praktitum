@@ -12,7 +12,7 @@ public class Lifecomponent : MonoBehaviour {
     float hitPoints;
 
     [SerializeField]
-    private GameObject target = null;
+    public GameObject target;
 
     [SerializeField]
     float maxRange;
@@ -20,14 +20,54 @@ public class Lifecomponent : MonoBehaviour {
     [SerializeField]
     float minRange;
 
-    
+    public GameObject explosion;
+    float updatedHitPoints;
+
+    void Awake()
+    {
+        if (GameHandler.players.Count > 0)
+        {
+            target = GameHandler.players[0];
+        }
+        else
+        {
+            target = GameObject.FindGameObjectWithTag("Player");
+        }
+        updatedHitPoints = hitPoints;
+    }
+
+    public void doDamage(String tag)
+    {
+        var damage = 1.0f;
+        switch (tag)
+        {
+            case "Projectile":
+                damage = 1;
+                break;
+            case "Rocket":
+                damage = 3;
+                break;
+        }
+        updatedHitPoints -= damage;
+        if(updatedHitPoints <= 0)
+        {
+            Instantiate(explosion, transform.position, Quaternion.identity);
+            destruct();
+        }
+    }
+
+    public void destruct()
+    {
+        updatedHitPoints = hitPoints;
+        SpawningSystem.instance.respawn(gameObject);
+    }
 
     public void doDamage(float damage)
     {
-        hitPoints -= damage;
-        if(hitPoints <= 0)
+        updatedHitPoints -= damage;
+        if (updatedHitPoints <= 0)
         {
-            Destroy(this.gameObject);
+            destruct();
         }
     }
 

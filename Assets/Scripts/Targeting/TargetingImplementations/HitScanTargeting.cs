@@ -113,14 +113,22 @@ public class HitScanTargeting : TargetingSystem
         }
 
         // Debugging
-        for (int i = 0; i < length; i++)
+        /*for (int i = 0; i < length; i++)
         {
             var a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             a.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             GameObject.Instantiate(a, targets[i].TargetPos, Quaternion.identity);
-        }
+        }*/
 
         return targets;
+    }
+
+    public override void OnDestroy()
+    {
+        if (projector != null)
+        {
+            GameObject.Destroy(projector);
+        }
     }
 
     public override void UpdateTargetSystem(Vector3 position, Vector3 direction)

@@ -29,12 +29,14 @@ public class Attacktype : MonoBehaviour, IActivateable
     protected bool active = false;
     protected bool check = true;
     protected float minRange;
+    protected Lifecomponent life;
 
     public void Start()
     {
         minRange = maxRange - (maxRange * StoppingRange);
         GetComponentInParent<Lifecomponent>().MaxRange = maxRange;
         GetComponentInParent<Lifecomponent>().MinRange = minRange;
+        life = GetComponentInParent<Lifecomponent>();
     }
 
     public void Update()
@@ -43,7 +45,7 @@ public class Attacktype : MonoBehaviour, IActivateable
         {
             Attack();
             //Cooldown
-            StartCoroutine(CoolDown(cooldown));
+            //StartCoroutine(CoolDown(cooldown));
         }
     }
 
@@ -54,21 +56,24 @@ public class Attacktype : MonoBehaviour, IActivateable
 
     public void Attack()
     {
-        target = GetComponentInParent<Lifecomponent>().GetTarget();
+
+        target = life.GetTarget();
         target.GetComponent<PlayerHealth>().doDamage(damage);
-        Debug.Log("Damage Done " + damage);
+        Instantiate(life.explosion, transform.position, Quaternion.identity);
+        destruct();
+        active = !active;
 
-        if (Vector3.Distance(transform.position, target.transform.position) > maxRange)
+        /*if (activateable != null)
         {
-            active = !active;
+            (activateable as IActivateable).Activate();
+            //life.SetTarget(target);
+        }*/
 
-            if (activateable != null)
-            {
-                (activateable as IActivateable).Activate();
-                GetComponentInParent<Lifecomponent>().SetTarget(target);
-            }
+    }
 
-        }
+    public void destruct()
+    {
+        life.destruct();
     }
 
     public void SetTarget(GameObject newTarget)
