@@ -49,7 +49,7 @@ namespace Weapons
             else
             {
                 // Shoot at first target in list.
-
+                
                 Vector3 direction = (availableTargets[0].TargetPos - transform.position).normalized;
                 transform.LookAt(availableTargets[0].TargetPos);
                 ShootDamagingRay(transform.position, direction);
