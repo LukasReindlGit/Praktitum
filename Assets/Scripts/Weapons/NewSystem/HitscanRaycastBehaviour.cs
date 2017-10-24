@@ -45,7 +45,7 @@ namespace Weapons
             if (availableTargets == null || availableTargets.Count <= 0)
             {
                 // Default shot straight forward
-                ShootDamagingRay(transform.position, transform.forward);
+                ShootDamagingRay(transform.position, transform.parent.forward);
             }
             else
             {
