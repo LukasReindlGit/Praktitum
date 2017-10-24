@@ -20,6 +20,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4313282875040182}
   - component: {fileID: 114443092714117850}
+  - component: {fileID: 114549454689831972}
+  - component: {fileID: 114672535947003468}
   m_Layer: 0
   m_Name: Explosion1
   m_TagString: Untagged
@@ -162,6 +164,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   delay: 5
+--- !u!114 &114549454689831972
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1175403294100498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 783f776e7cd7436499cf8cce7a7e8caa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clip: {fileID: 8300000, guid: a3538d4d8e5ffac4ab5f03fc6be783c1, type: 3}
+--- !u!114 &114672535947003468
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1175403294100498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b53306c05d4eb7c43a28c1342afdb6f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  autostart: 1
+  delayTime: 0
+  activateables:
+  - {fileID: 114549454689831972}
+  loop: 0
 --- !u!198 &198193005823625620
 ParticleSystem:
   m_ObjectHideFlags: 1

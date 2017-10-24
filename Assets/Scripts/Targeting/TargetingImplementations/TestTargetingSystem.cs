@@ -12,6 +12,11 @@ public class TestTargetingSystem : TargetingSystem
         return null;
     }
 
+    public override void OnDestroy()
+    {
+        
+    }
+
     public override void UpdateTargetSystem(Vector3 position, Vector3 direction)
     {
         //throw new NotImplementedException();

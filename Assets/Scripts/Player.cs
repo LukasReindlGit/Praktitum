@@ -13,13 +13,13 @@ public class Player : MonoBehaviour
 
     public void Awake()
     {
-        GameHandler.players.Add(this);
+        //GameHandler.players.Add(this);
         SpawnCurrentWeapon();
     }
 
     public void OnDestroy()
     {
-        GameHandler.players.Remove(this);
+        //GameHandler.players.Remove(this);
     }
 
     /// <summary>

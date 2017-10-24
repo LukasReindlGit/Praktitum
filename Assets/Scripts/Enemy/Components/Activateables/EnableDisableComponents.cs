@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public abstract class EnableDisableComponents  : MonoBehaviour, IActivateable {
+public class EnableDisableComponents  : MonoBehaviour, IActivateable {
 
     [SerializeField]
     bool enable = true;

@@ -8,28 +8,57 @@ namespace AI.Component
     public class RangeDetector : Activator
     {
         [SerializeField]
-        GameObject target;
+        String target;
 
-        [SerializeField]
-        MonoBehaviour[] activateables;
-               
-        [SerializeField]
-        bool onlyOnce = false;
-        bool activated = false;
+        public GameObject targetPlayer;
+        public float requiredRange = 30;
 
+        private Transform targetColl;
+        private Lifecomponent lifecomp;
+        private bool isInRange = false;
+
+        public void Start()
+        {
+            lifecomp = this.GetComponent<Lifecomponent>();
+            targetPlayer = lifecomp.target;
+        }
+
+        
+
+        public void FixedUpdate()
+        {
+            if (targetPlayer != null)
+            {
+                if (!isInRange && Vector3.Distance(transform.position, targetPlayer.transform.position) <= requiredRange)
+                {
+                    targetColl = targetPlayer.gameObject.transform;
+                    lifecomp.SetTarget(targetPlayer.gameObject);
+                    ActivateAllTargets();
+                    isInRange = true;
+
+                    activated = true;
+                }
+                else if (isInRange && Vector3.Distance(transform.position, targetPlayer.transform.position) > requiredRange)
+                {
+                    isInRange = false;
+                }
+            }
+        }
+
+        
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("look guests");
 
             if (onlyOnce && activated)
             {
-                Debug.Log("ups");
                 return;
             }
 
-            if (other.gameObject == target)
+            if (other.gameObject.tag == target)
             {
+                targetColl = other.gameObject.transform;
+                lifecomp.SetTarget(other.gameObject);
                 ActivateAllTargets();
 
                 //((IActivateable) activateableTarget).Activate();
@@ -37,16 +66,37 @@ namespace AI.Component
             }
         }
 
-        private void ActivateAllTargets()
+        override protected void ActivateAllTargets()
         {
+            //base.ActivateAllTargets();
             foreach (var a in activateables)
             {
-                IActivateable ia = a as IActivateable;
-                if (ia != null)
+                if (a is IUsesTarget)
                 {
-                    ia.Activate();
+                    IUsesTarget iu = a as IUsesTarget;
+                    iu.SetTarget(targetColl.transform);
                 }
+                ActivateTarget(a);
+                
             }
+            
+        }
+        //    virtual protected void ActivateAllTargets()
+        //    {
+        //        foreach (var a in activateables)
+        //        {
+        //            if(a is IUsesTarget)
+        //            {
+        //                IUsesTarget iu = a as IUsesTarget;
+        //                iu.SetTarget(targetColl.transform);
+
+        //            }
+        //            IActivateable ia = a as IActivateable;
+        //            if (ia != null)
+        //            {
+        //                ia.Activate();
+        //            }
+        //        }
+        //    }
         }
     }
-}

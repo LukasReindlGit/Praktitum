@@ -69,7 +69,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1509645747900524}
   m_LocalRotation: {x: -0.6518682, y: -0.35640797, z: 0.22876099, w: -0.6290546}
-  m_LocalPosition: {x: -1.1559944, y: 1.8395314, z: 0.39528847}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4093659234595644}
@@ -97,7 +97,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1201522867131980}
   m_LocalRotation: {x: 0.49715662, y: 0.5520816, z: -0.4240785, w: 0.517879}
-  m_LocalPosition: {x: -1.1559944, y: 1.8395314, z: 0.39528847}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4093659234595644}
@@ -178,7 +178,7 @@ Projector:
   m_Material: {fileID: 2100000, guid: 9cea9fc63ddbdc949873dcaf2ec4042a, type: 2}
   m_IgnoreLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
 --- !u!119 &119728328753682972
 Projector:
   m_ObjectHideFlags: 1
@@ -196,4 +196,4 @@ Projector:
   m_Material: {fileID: 2100000, guid: 0ceaf407798ab1d4db5dae99b7920228, type: 2}
   m_IgnoreLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512

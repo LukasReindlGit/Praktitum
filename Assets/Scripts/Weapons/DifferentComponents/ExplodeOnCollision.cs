@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class ExplodeOnCollision : MonoBehaviour {
 
-    [SerializeField]
-    GameObject explosion;
+    public GameObject explosion;
 
     [SerializeField]
     bool onTrigger = true;
@@ -13,6 +12,8 @@ public class ExplodeOnCollision : MonoBehaviour {
     {
         if (onTrigger)
             return;
+
+        FindObjectOfType<CameraWeaponEffect>().CallEffect();
 
         Instantiate(explosion, transform.position, Quaternion.identity);
         Destroy(gameObject);
@@ -25,5 +26,14 @@ public class ExplodeOnCollision : MonoBehaviour {
 
         Instantiate(explosion, transform.position, Quaternion.identity);
         Destroy(gameObject);
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Shootable"))
+        {
+            Lifecomponent life;
+            if (life = other.gameObject.GetComponent<Lifecomponent>())
+            {
+                life.doDamage(gameObject.tag);
+            }
+        }
     }
 }
